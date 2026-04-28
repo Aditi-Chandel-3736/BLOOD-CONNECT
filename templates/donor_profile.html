@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width:700px;margin:0 auto">
+<div style="background:linear-gradient(135deg,#1A202C,#2D3748);border-radius:12px;padding:1.5rem;color:#fff;margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem">
+  <div>
+    <h1 style="font-family:'Playfair Display',serif;font-size:1.5rem">🩸 {{donor.name}}</h1>
+    <p style="color:#A0AEC0;font-size:.84rem;margin-top:4px">{{donor.city}}, {{donor.area}} &nbsp;|&nbsp; {{donor.phone}}</p>
+  </div>
+  <span class="badge badge-bg" style="font-size:1.2rem;padding:8px 16px">{{donor.blood_group}}</span>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+
+<div>
+  <!-- COOLDOWN STATUS -->
+  <div class="card" style="margin-bottom:1.2rem">
+    <div class="section-title">⏱ Cooldown Status</div>
+    {% if cooldown.eligible %}
+    <div style="background:#F0FFF4;border:2px solid #68D391;border-radius:8px;padding:1rem;text-align:center">
+      <div style="font-size:1.3rem;font-weight:700;color:#276749">✅ Eligible to Donate</div>
+      <div style="font-size:.82rem;color:#718096;margin-top:.3rem">Last donated: {{cooldown.last_donated_display}}</div>
+    </div>
+    {% else %}
+    <div style="background:#FFF5F5;border:2px solid #FC8181;border-radius:8px;padding:1rem;text-align:center">
+      <div style="font-size:1rem;font-weight:700;color:#742A2A">⛔ {{cooldown.status}}</div>
+      <div style="font-size:.82rem;color:#718096;margin-top:.3rem">Last donated: {{cooldown.last_donated_display}}</div>
+      <div style="font-size:.82rem;color:#276749;margin-top:.2rem">Eligible again: {{cooldown.eligible_from}}</div>
+    </div>
+    {% endif %}
+    <div style="background:#EBF8FF;border-radius:6px;padding:10px;margin-top:1rem;font-size:.78rem;color:#2B6CB0">
+      <strong>How cooldown works:</strong> The 56-day timer starts ONLY when you confirm actual blood donation in Stage 3. Simply saying YES to come or blood not being needed does NOT start the timer.
+    </div>
+  </div>
+
+  <!-- DONOR INFO -->
+  <div class="card">
+    <div class="section-title">Donor Information</div>
+    {% for label, value in [("Donor ID", "#" ~ donor.id), ("Name", donor.name), ("Email", donor.email), ("Phone", donor.phone), ("Age", donor.age), ("Blood Group", donor.blood_group), ("City", donor.city), ("Area", donor.area), ("Registered", donor.registered_at[:10])] %}
+    <div style="display:flex;padding:7px 0;border-bottom:1px solid #E2E8F0;font-size:.84rem">
+      <span style="color:#718096;font-weight:600;width:110px;flex-shrink:0;font-size:.78rem">{{label}}</span>
+      <span>{{value}}</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div>
+  <!-- AVAILABILITY -->
+  <div class="card" style="margin-bottom:1.2rem">
+    <div class="section-title">Availability</div>
+    <div style="text-align:center;padding:.5rem 0">
+      <div style="font-size:1.1rem;font-weight:700;color:{{'#276749' if donor.is_available else '#742A2A'}};margin-bottom:1rem">
+        {{'✅ Currently Available' if donor.is_available else '❌ Currently Unavailable'}}
+      </div>
+      <form method="POST" action="/donor/{{donor.id}}/toggle">
+        <button type="submit" class="btn {{'btn-outline' if donor.is_available else 'btn-green'}}" style="width:100%">
+          {{'Mark as Unavailable' if donor.is_available else 'Mark as Available'}}
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- STAGE 3 REMINDER -->
+  <div class="card" style="background:#FFFFF0;border:1px solid #ECC94B">
+    <div class="section-title">📋 Remember — Report Outcomes</div>
+    <p style="font-size:.82rem;color:#744210;line-height:1.6">
+      After visiting a hospital to donate blood, always return here and report what happened. This ensures your cooldown timer is accurate and the system remains reliable for all donors.
+    </p>
+    <p style="font-size:.78rem;color:#718096;margin-top:.7rem">
+      If you have a pending confirmation, check your email for the outcome link.
+    </p>
+  </div>
+
+  <a href="/dashboard" class="btn btn-outline" style="width:100%;text-align:center;display:block;margin-top:1rem">← Dashboard</a>
+</div>
+
+</div>
+</div>
+{% endblock %}

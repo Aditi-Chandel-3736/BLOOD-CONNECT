@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+.hero{background:linear-gradient(135deg,#1A202C,#2D3748);border-radius:16px;padding:3rem 2.5rem;color:#fff;margin-bottom:2rem;position:relative;overflow:hidden}
+.hero::after{content:"🩸";position:absolute;right:2rem;top:50%;transform:translateY(-50%);font-size:8rem;opacity:.05}
+.hero-tag{display:inline-block;background:rgba(197,48,48,.2);color:#FC8181;border:1px solid rgba(197,48,48,.4);padding:3px 12px;border-radius:20px;font-size:.73rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:1rem}
+.hero h1{font-family:'Playfair Display',serif;font-size:2.3rem;line-height:1.2;margin-bottom:.8rem}
+.hero h1 span{color:#FC8181}
+.hero p{color:#A0AEC0;font-size:.93rem;max-width:500px;line-height:1.7;margin-bottom:1.8rem}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap}
+.btn-hero-red{background:#C53030;color:#fff;padding:12px 26px;border-radius:8px;font-weight:700;font-size:.93rem;text-decoration:none;transition:all .2s}
+.btn-hero-red:hover{background:#9B2C2C;transform:translateY(-1px)}
+.btn-hero-out{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.3);padding:12px 26px;border-radius:8px;font-weight:600;font-size:.93rem;text-decoration:none;transition:all .2s}
+.btn-hero-out:hover{border-color:#FC8181;color:#FC8181}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:1rem}
+.step{text-align:center;padding:1.2rem 1rem;background:#fff;border-radius:10px;border:1px solid #E2E8F0}
+.step-num{width:30px;height:30px;background:#C53030;color:#fff;border-radius:50%;font-weight:700;font-size:.87rem;line-height:30px;margin:0 auto .5rem}
+.step-title{font-weight:600;font-size:.87rem;color:#1A202C;margin-bottom:.3rem}
+.step-desc{font-size:.76rem;color:#718096;line-height:1.4}
+.feed-card{background:#fff;border-radius:10px;border:1px solid #E2E8F0;padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;margin-bottom:.7rem}
+.feed-bg{font-size:1.4rem;font-weight:800;color:#C53030;min-width:44px;text-align:center}
+.feed-info{flex:1}
+.feed-info strong{font-size:.88rem;display:block}
+.feed-info span{font-size:.76rem;color:#718096}
+@media(max-width:640px){.steps{grid-template-columns:1fr 1fr}.hero h1{font-size:1.6rem}}
+</style>
+
+<div class="hero">
+  <div class="hero-tag">Emergency Blood Alert System</div>
+  <h1>Find Blood Donors<br><span>In Minutes, Not Hours</span></h1>
+  <p>BloodConnect automatically finds matching donors in your city and sends instant alerts — with direct contact so patients get help before it is too late.</p>
+  <div class="hero-btns">
+    <a href="/request-blood" class="btn-hero-red">🚨 I Need Blood</a>
+    <a href="/register"      class="btn-hero-out">🩸 I Want to Donate</a>
+  </div>
+</div>
+
+<div class="grid-4" style="margin-bottom:2rem">
+  <div class="stat-card"><div class="stat-num">{{stats.active_donors}}</div><div class="stat-label">Active Donors</div></div>
+  <div class="stat-card"><div class="stat-num">{{stats.open_requests}}</div><div class="stat-label">Open Requests</div></div>
+  <div class="stat-card"><div class="stat-num">{{stats.fulfilled}}</div><div class="stat-label">Lives Helped</div></div>
+  <div class="stat-card"><div class="stat-num">{{stats.total_donations}}</div><div class="stat-label">Confirmed Donations</div></div>
+</div>
+
+<div class="card" style="margin-bottom:2rem">
+  <div class="section-title">How It Works — 4 Simple Steps</div>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-title">Register</div><div class="step-desc">Donor registers once with blood group and city</div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-title">Request</div><div class="step-desc">Patient family submits emergency request with contact number</div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-title">Alert</div><div class="step-desc">System instantly alerts all matching eligible donors by email</div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-title">Connect</div><div class="step-desc">Donor calls patient directly and reports outcome after hospital visit</div></div>
+  </div>
+</div>
+
+{% if feed %}
+<div class="card">
+  <div class="section-title">🔴 Live Open Requests</div>
+  {% for r in feed %}
+  <div class="feed-card">
+    <div class="feed-bg">{{r.blood_group}}</div>
+    <div class="feed-info">
+      <strong>{{r.patient_name}} — {{r.hospital_name}}, {{r.city}}</strong>
+      <span>{{r.units_needed}} unit(s) &nbsp;|&nbsp; Call: {{r.contact_phone}} &nbsp;|&nbsp; {{r.requested_at[:10]}}</span>
+    </div>
+    <span class="badge badge-{{r.urgency|lower}}">{{r.urgency}}</span>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

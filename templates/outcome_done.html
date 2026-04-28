@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width:480px;margin:3rem auto;text-align:center">
+<div class="card">
+  {% if outcome == 'Donated' %}
+  <div style="font-size:4rem;margin-bottom:1rem">🏆</div>
+  <h2 style="font-family:'Playfair Display',serif;color:#276749">You Saved a Life!</h2>
+  <p style="color:#718096;margin:1rem 0">Your donation has been recorded. Your 56-day cooldown has started. You will be automatically eligible to donate again after this period.</p>
+  <div style="background:#F0FFF4;border:1px solid #9AE6B4;border-radius:8px;padding:1rem;margin:1rem 0;font-size:.84rem;color:#276749">
+    <strong>Cooldown started today.</strong><br>You will be eligible again in 56 days.
+  </div>
+  {% elif outcome == 'NotNeeded' %}
+  <div style="font-size:4rem;margin-bottom:1rem">💙</div>
+  <h2 style="font-family:'Playfair Display',serif;color:#1A202C">Thank You for Showing Up</h2>
+  <p style="color:#718096;margin:1rem 0">The blood was not needed — but your willingness to help matters greatly. Your cooldown timer has NOT been affected. You are still eligible to donate.</p>
+  {% else %}
+  <div style="font-size:4rem;margin-bottom:1rem">💛</div>
+  <h2 style="font-family:'Playfair Display',serif;color:#1A202C">Thank You for Trying</h2>
+  <p style="color:#718096;margin:1rem 0">We are sorry you could not donate this time. Your cooldown has NOT been affected. Please consult a doctor about your eligibility.</p>
+  {% endif %}
+  <a href="/" class="btn btn-dark" style="display:inline-block;margin-top:1rem">Back to Home</a>
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="background:linear-gradient(135deg,#1A202C,#2D3748);border-radius:12px;padding:1.5rem;color:#fff;margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem">
+  <div>
+    <h1 style="font-family:'Playfair Display',serif;font-size:1.4rem">🩸 {{req.patient_name}} — {{req.blood_group}}</h1>
+    <p style="color:#A0AEC0;font-size:.84rem;margin-top:4px">{{req.hospital_name}}, {{req.city}} &nbsp;|&nbsp; {{req.requested_at[:16]}}</p>
+  </div>
+  <span class="badge badge-{{req.status|lower}}" style="font-size:.82rem;padding:6px 14px">{{req.status}}</span>
+</div>
+
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:1.5rem">
+
+<div>
+  <!-- CONTACT BOX -->
+  <div style="background:#F0FFF4;border:2px solid #68D391;border-radius:10px;padding:1rem 1.2rem;margin-bottom:1.2rem">
+    <div style="font-size:.75rem;font-weight:700;color:#276749;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.3rem">📞 Donors Will Call This Number</div>
+    <div style="font-size:1.5rem;font-weight:800;color:#1A202C">{{req.contact_phone}}</div>
+    <div style="font-size:.82rem;color:#276749">{{req.contact_person}} — Contact Person</div>
+  </div>
+
+  <!-- REQUEST INFO -->
+  <div class="card" style="margin-bottom:1.2rem">
+    <div class="section-title">Request Details</div>
+    {% for label, value in [
+      ("Patient", req.patient_name),
+      ("Blood Group", req.blood_group),
+      ("Units Needed", req.units_needed),
+      ("Hospital", req.hospital_name),
+      ("City", req.city),
+      ("Urgency", req.urgency),
+      ("Donors Alerted", req.donors_alerted),
+      ("Donors Confirmed", req.donors_confirmed),
+      ("Actual Donations", req.donors_donated)
+    ] %}
+    <div style="display:flex;padding:8px 0;border-bottom:1px solid #E2E8F0;font-size:.86rem">
+      <span style="color:#718096;font-weight:600;width:140px;flex-shrink:0">{{label}}</span>
+      <span>{{value}}</span>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if req.status == 'Open' %}
+  <form method="POST" action="/request/{{req.id}}/close">
+    <button class="btn btn-outline btn-sm">Close Request</button>
+  </form>
+  {% endif %}
+</div>
+
+<!-- DONOR RESPONSES -->
+<div>
+  <div class="card">
+    <div class="section-title">Donor Responses</div>
+    {% if alerts %}
+      {% for a in alerts %}
+      <div style="display:flex;gap:10px;padding-bottom:1rem;margin-bottom:.5rem;border-bottom:1px solid #E2E8F0">
+        <div style="width:24px;height:24px;border-radius:50%;background:{{'#38A169' if a.donation_outcome=='Donated' else '#C53030' if a.donation_outcome=='Declined' else '#718096'}};color:#fff;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0">
+          {{'✓' if a.donation_outcome=='Donated' else '✗' if a.donation_outcome=='Declined' else '?'}}
+        </div>
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:.86rem">{{a.donor_name}}</div>
+          <div style="font-size:.76rem;color:#718096">{{a.donor_area}} | {{a.donor_bg}}</div>
+          <div style="margin-top:4px">
+            <span class="badge badge-{{a.stage|lower}}" style="margin-right:4px">{{a.stage}}</span>
+            {% if a.donation_outcome != 'Pending' %}
+            <span class="badge badge-{{a.donation_outcome|lower}}">{{a.donation_outcome}}</span>
+            {% endif %}
+          </div>
+          {% if a.donation_outcome == 'Donated' or a.stage == 'Confirmed' %}
+          <div style="font-size:.82rem;color:#276749;font-weight:600;margin-top:3px">📱 {{a.donor_phone}}</div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+    <p style="color:#718096;font-size:.84rem;text-align:center;padding:1rem">No donors alerted yet.</p>
+    {% endif %}
+  </div>
+
+  <!-- 3-STAGE EXPLANATION -->
+  <div class="card" style="margin-top:1rem">
+    <div class="section-title">3-Stage Process</div>
+    <div style="font-size:.8rem;color:#4A5568;line-height:1.7">
+      <p><strong style="color:#718096">Stage 1 — Alerted</strong><br>Alert email sent to donor</p>
+      <p style="margin-top:.5rem"><strong style="color:#744210">Stage 2 — Confirmed</strong><br>Donor said YES, going to hospital</p>
+      <p style="margin-top:.5rem"><strong style="color:#276749">Stage 3 — Outcome</strong><br>Donor reports what happened. Only actual donation starts 56-day cooldown.</p>
+    </div>
+  </div>
+
+  <a href="/dashboard" class="btn btn-outline" style="width:100%;text-align:center;display:block;margin-top:1rem">← Dashboard</a>
+</div>
+
+</div>
+{% endblock %}

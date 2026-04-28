@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BloodConnect — Saving Lives Together</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--red:#C53030;--red-light:#FFF5F5;--dark:#1A202C;--grey:#718096;--light:#F7FAFC;--white:#fff;--green:#276749;--green-bg:#F0FFF4;--border:#E2E8F0;--shadow:0 1px 3px rgba(0,0,0,.08)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--light);color:var(--dark);min-height:100vh}
+nav{background:var(--dark);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.drop{width:10px;height:14px;background:var(--red);border-radius:50% 50% 50% 50%/60% 60% 40% 40%}
+.logo-text{font-family:'Playfair Display',serif;color:#fff;font-size:1.2rem}
+.logo-sub{color:#FC8181;font-size:.68rem;font-family:'Inter',sans-serif;display:block;margin-top:-4px}
+.nav-links{display:flex;gap:4px;align-items:center}
+.nav-link{color:#A0AEC0;text-decoration:none;font-size:.83rem;padding:7px 13px;border-radius:6px;transition:all .2s;font-weight:500}
+.nav-link:hover{color:#fff;background:rgba(255,255,255,.1)}
+.nav-sos{background:var(--red);color:#fff!important;font-weight:700;font-size:.78rem;letter-spacing:.5px}
+.nav-sos:hover{background:#9B2C2C!important}
+main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
+.flash{padding:12px 16px;border-radius:8px;margin-bottom:1.5rem;font-size:.87rem;font-weight:500}
+.flash.success{background:#C6F6D5;color:#22543D;border-left:4px solid #38A169}
+.flash.error{background:#FED7D7;color:#742A2A;border-left:4px solid var(--red)}
+.flash.warning{background:#FEFCBF;color:#744210;border-left:4px solid #ECC94B}
+.card{background:var(--white);border-radius:12px;border:1px solid var(--border);padding:1.5rem;box-shadow:var(--shadow)}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.badge-open{background:#BEE3F8;color:#2A4365}
+.badge-fulfilled{background:#C6F6D5;color:#22543D}
+.badge-closed{background:#E2E8F0;color:#4A5568}
+.badge-normal{background:#C6F6D5;color:#22543D}
+.badge-urgent{background:#FEFCBF;color:#744210}
+.badge-critical{background:#FED7D7;color:#742A2A}
+.badge-bg{background:#FFF5F5;color:var(--red);font-size:.82rem;font-weight:700;padding:3px 10px;border:1px solid #FC8181;border-radius:4px}
+.badge-pending{background:#EDF2F7;color:#4A5568}
+.badge-confirmed{background:#C6F6D5;color:#22543D}
+.badge-declined{background:#FED7D7;color:#742A2A}
+.badge-donated{background:#C6F6D5;color:#22543D}
+.badge-notneeded{background:#BEE3F8;color:#2A4365}
+.badge-rejected{background:#FEFCBF;color:#744210}
+.btn{display:inline-block;padding:10px 20px;border-radius:8px;font-size:.87rem;font-weight:600;cursor:pointer;border:none;text-decoration:none;transition:all .2s;font-family:'Inter',sans-serif}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover{background:#9B2C2C;transform:translateY(-1px)}
+.btn-dark{background:var(--dark);color:#fff}.btn-dark:hover{background:#2D3748}
+.btn-green{background:#38A169;color:#fff}.btn-green:hover{background:#276749}
+.btn-outline{background:transparent;border:2px solid var(--border);color:var(--dark)}.btn-outline:hover{border-color:var(--red);color:var(--red)}
+.btn-sm{padding:6px 13px;font-size:.78rem}
+.form-group{margin-bottom:1.1rem}
+.form-label{display:block;font-size:.81rem;font-weight:600;color:var(--dark);margin-bottom:5px}
+.form-label span{color:var(--red)}
+.form-control{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.87rem;font-family:'Inter',sans-serif;color:var(--dark);outline:none;transition:border-color .2s;background:#fff}
+.form-control:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(197,48,48,.1)}
+select.form-control{cursor:pointer}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+.table{width:100%;border-collapse:collapse}
+.table th{text-align:left;padding:10px 12px;font-size:.73rem;font-weight:700;color:var(--grey);text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--border);background:var(--light)}
+.table td{padding:11px 12px;font-size:.84rem;border-bottom:1px solid var(--border);vertical-align:middle}
+.table tr:last-child td{border-bottom:none}
+.table tr:hover td{background:#FAFAFA}
+.page-header{margin-bottom:1.5rem}
+.page-header h1{font-family:'Playfair Display',serif;font-size:1.7rem;color:var(--dark)}
+.page-header p{color:var(--grey);font-size:.87rem;margin-top:4px}
+.stat-card{background:#fff;border-radius:12px;border:1px solid var(--border);padding:1.2rem 1.5rem;box-shadow:var(--shadow)}
+.stat-num{font-family:'Playfair Display',serif;font-size:2rem;color:var(--red);font-weight:700}
+.stat-label{color:var(--grey);font-size:.78rem;margin-top:2px}
+.section-title{font-size:.76rem;font-weight:700;color:var(--grey);text-transform:uppercase;letter-spacing:1px;padding-bottom:8px;border-bottom:2px solid var(--red);margin-bottom:1rem}
+footer{text-align:center;padding:2rem;color:var(--grey);font-size:.77rem;border-top:1px solid var(--border);margin-top:3rem}
+@media(max-width:640px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}.nav-links{gap:2px}main{padding:1rem}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">
+    <div class="drop"></div>
+    <div><span class="logo-text">BloodConnect</span><span class="logo-sub">Saving Lives Together</span></div>
+  </a>
+  <div class="nav-links">
+    <a href="/"              class="nav-link">Home</a>
+    <a href="/register"      class="nav-link">Donate</a>
+    <a href="/request-blood" class="nav-link">Need Blood</a>
+    <a href="/dashboard"     class="nav-link">Dashboard</a>
+    <a href="/request-blood" class="nav-link nav-sos">🚨 SOS</a>
+  </div>
+</nav>
+<main>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}{% for cat,msg in messages %}
+    <div class="flash {{cat}}">{{msg}}</div>
+  {% endfor %}{% endif %}
+{% endwith %}
+{% block content %}{% endblock %}
+</main>
+<footer>🩸 BloodConnect &nbsp;|&nbsp; Blood Donor Emergency Alert System &nbsp;|&nbsp; MCA Minor Project</footer>
+</body>
+</html>

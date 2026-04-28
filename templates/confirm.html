@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width:500px;margin:2rem auto;text-align:center">
+{% if confirmed %}
+<div class="card">
+  <div style="font-size:3.5rem;margin-bottom:1rem">🚗</div>
+  <h2 style="font-family:'Playfair Display',serif;color:#276749;margin-bottom:.5rem">Thank You, {{alert.donor_name}}!</h2>
+  <p style="color:#718096;margin-bottom:1.5rem">You confirmed you are going to the hospital. Please call the patient family first.</p>
+  <div style="background:#F0FFF4;border:2px solid #68D391;border-radius:10px;padding:1.2rem;margin-bottom:1.5rem">
+    <div style="font-size:.75rem;font-weight:700;color:#276749;text-transform:uppercase;margin-bottom:.5rem">📞 Call Before Going</div>
+    <div style="font-size:1.6rem;font-weight:800;color:#1A202C">{{alert.contact_phone}}</div>
+    <div style="font-size:.84rem;color:#276749">{{alert.contact_person}}</div>
+  </div>
+  <div style="background:#FFF5F5;border-radius:8px;padding:1rem;text-align:left;font-size:.84rem;margin-bottom:1.5rem">
+    <div style="margin-bottom:.3rem"><strong>Patient:</strong> {{alert.patient_name}}</div>
+    <div style="margin-bottom:.3rem"><strong>Blood Group:</strong> {{alert.blood_group}}</div>
+    <div><strong>Hospital:</strong> {{alert.hospital_name}}, {{alert.city}}</div>
+  </div>
+  <div style="background:#EBF8FF;border:1px solid #90CDF4;border-radius:8px;padding:1rem;margin-bottom:1rem;text-align:left">
+    <p style="color:#2B6CB0;font-size:.82rem;margin:0">
+      <strong>📋 After your hospital visit:</strong> Please come back and report what happened. This keeps your cooldown timer accurate.
+    </p>
+  </div>
+  <a href="/outcome/{{alert.id}}" class="btn btn-dark" style="display:block">Report Outcome After Hospital Visit</a>
+</div>
+{% else %}
+<div class="card">
+  <div style="font-size:3.5rem;margin-bottom:1rem">💙</div>
+  <h2 style="font-family:'Playfair Display',serif;color:#1A202C;margin-bottom:.5rem">Thank You for Responding</h2>
+  <p style="color:#718096">We understand you cannot help right now. You will still receive future alerts.</p>
+  <a href="/" class="btn btn-dark" style="margin-top:1.5rem;display:inline-block">Back to Home</a>
+</div>
+{% endif %}
+</div>
+{% endblock %}

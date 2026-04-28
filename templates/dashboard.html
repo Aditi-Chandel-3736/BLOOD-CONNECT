@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem">
+  <div class="page-header" style="margin:0"><h1>📊 Dashboard</h1><p>All donors and requests in one place</p></div>
+  <div style="display:flex;gap:8px">
+    <a href="/register"      class="btn btn-outline btn-sm">+ Add Donor</a>
+    <a href="/request-blood" class="btn btn-red btn-sm">🚨 New Request</a>
+  </div>
+</div>
+<div class="grid-4" style="margin-bottom:1.5rem">
+  <div class="stat-card"><div class="stat-num">{{stats.active_donors}}</div><div class="stat-label">Active Donors</div></div>
+  <div class="stat-card"><div class="stat-num">{{stats.open_requests}}</div><div class="stat-label">Open Requests</div></div>
+  <div class="stat-card"><div class="stat-num">{{stats.fulfilled}}</div><div class="stat-label">Fulfilled</div></div>
+  <div class="stat-card"><div class="stat-num">{{stats.total_donations}}</div><div class="stat-label">Actual Donations</div></div>
+</div>
+
+<div style="display:flex;gap:4px;margin-bottom:1.5rem;border-bottom:2px solid #E2E8F0">
+  <a href="#" class="tab active" id="tab-req-btn" onclick="show('req');return false" style="padding:10px 20px;font-size:.87rem;font-weight:600;border-radius:8px 8px 0 0;text-decoration:none;background:#C53030;color:#fff">🚨 Requests ({{requests|length}})</a>
+  <a href="#" class="tab" id="tab-don-btn" onclick="show('don');return false" style="padding:10px 20px;font-size:.87rem;font-weight:600;border-radius:8px 8px 0 0;text-decoration:none;color:#718096">🩸 Donors ({{donors|length}})</a>
+</div>
+
+<div id="tab-req">
+<div class="card">
+{% if requests %}
+<table class="table">
+  <thead><tr><th>#</th><th>Patient</th><th>Blood</th><th>Hospital</th><th>City</th><th>Urgency</th><th>Alerted</th><th>Donated</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+  {% for r in requests %}
+  <tr>
+    <td style="color:#718096;font-weight:600">{{r.id}}</td>
+    <td><strong>{{r.patient_name}}</strong><br><span style="font-size:.73rem;color:#718096">{{r.requested_at[:10]}}</span></td>
+    <td><span class="badge badge-bg">{{r.blood_group}}</span></td>
+    <td>{{r.hospital_name}}</td>
+    <td>{{r.city}}</td>
+    <td><span class="badge badge-{{r.urgency|lower}}">{{r.urgency}}</span></td>
+    <td style="font-weight:600;color:#C53030">{{r.donors_alerted}}</td>
+    <td style="font-weight:600;color:#276749">{{r.donors_donated}}</td>
+    <td><span class="badge badge-{{r.status|lower}}">{{r.status}}</span></td>
+    <td><a href="/request/{{r.id}}" style="color:#C53030;font-weight:600;font-size:.8rem;text-decoration:none">View →</a></td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div style="text-align:center;padding:3rem;color:#718096"><div style="font-size:2.5rem;margin-bottom:.5rem">🩸</div><p>No requests yet.</p><a href="/request-blood" class="btn btn-red" style="margin-top:1rem;display:inline-block">Submit First Request</a></div>
+{% endif %}
+</div>
+</div>
+
+<div id="tab-don" style="display:none">
+<div class="card">
+{% if donors %}
+<table class="table">
+  <thead><tr><th>#</th><th>Name</th><th>Blood</th><th>City</th><th>Area</th><th>Phone</th><th>Available</th><th>Last Donated</th><th></th></tr></thead>
+  <tbody>
+  {% for d in donors %}
+  <tr>
+    <td style="color:#718096;font-weight:600">{{d.id}}</td>
+    <td><strong>{{d.name}}</strong><br><span style="font-size:.73rem;color:#718096">{{d.email}}</span></td>
+    <td><span class="badge badge-bg">{{d.blood_group}}</span></td>
+    <td>{{d.city}}</td>
+    <td>{{d.area}}</td>
+    <td>{{d.phone}}</td>
+    <td>
+      <form method="POST" action="/donor/{{d.id}}/toggle" style="display:inline">
+        <button type="submit" class="btn btn-sm" style="background:{{'#C6F6D5' if d.is_available else '#FED7D7'}};color:{{'#22543D' if d.is_available else '#742A2A'}};border:none;cursor:pointer;font-size:.76rem">
+          {{'✅ Available' if d.is_available else '❌ Unavailable'}}
+        </button>
+      </form>
+    </td>
+    <td style="font-size:.8rem;color:#718096">{{d.last_donated or 'Never'}}</td>
+    <td><a href="/donor/{{d.id}}" style="color:#C53030;font-weight:600;font-size:.8rem;text-decoration:none">View →</a></td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div style="text-align:center;padding:3rem;color:#718096"><a href="/register" class="btn btn-red">Register First Donor</a></div>
+{% endif %}
+</div>
+</div>
+
+<script>
+function show(tab){
+  document.getElementById('tab-req').style.display = tab==='req'?'block':'none';
+  document.getElementById('tab-don').style.display = tab==='don'?'block':'none';
+  document.getElementById('tab-req-btn').style.background = tab==='req'?'#C53030':'transparent';
+  document.getElementById('tab-req-btn').style.color = tab==='req'?'#fff':'#718096';
+  document.getElementById('tab-don-btn').style.background = tab==='don'?'#C53030':'transparent';
+  document.getElementById('tab-don-btn').style.color = tab==='don'?'#fff':'#718096';
+}
+</script>
+{% endblock %}

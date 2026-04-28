@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width:520px;margin:2rem auto">
+  <div class="page-header"><h1>📋 Report Donation Outcome</h1><p>What happened at the hospital?</p></div>
+  <div class="card">
+    <div style="background:#FFF5F5;border-radius:8px;padding:1rem;margin-bottom:1.5rem;font-size:.84rem">
+      <strong>{{alert.donor_name}}</strong> — Alert for <strong>{{alert.patient_name}}</strong> ({{alert.blood_group}}) at {{alert.hospital_name}}
+    </div>
+    <div style="background:#EBF8FF;border:1px solid #90CDF4;border-radius:8px;padding:12px;margin-bottom:1.5rem;font-size:.82rem;color:#2B6CB0">
+      <strong>Why this matters:</strong> The 56-day donation cooldown only starts when you actually donate blood. If blood was not needed or you were rejected, your cooldown is NOT affected.
+    </div>
+    <form method="POST" action="/outcome/{{alert.id}}">
+      <div class="form-group">
+        <label class="form-label">What happened when you visited the hospital? <span>*</span></label>
+
+        <label style="display:block;padding:12px;border:2px solid #E2E8F0;border-radius:8px;cursor:pointer;margin-bottom:.7rem;transition:border-color .2s" id="opt1">
+          <input type="radio" name="outcome" value="Donated" required onchange="highlight()" style="margin-right:8px">
+          <strong style="color:#276749">✅ I Donated Blood Successfully</strong>
+          <span style="display:block;font-size:.78rem;color:#718096;margin-top:3px;margin-left:20px">Blood was needed and I donated. Start my 56-day cooldown.</span>
+        </label>
+
+        <label style="display:block;padding:12px;border:2px solid #E2E8F0;border-radius:8px;cursor:pointer;margin-bottom:.7rem;transition:border-color .2s" id="opt2">
+          <input type="radio" name="outcome" value="NotNeeded" onchange="highlight()" style="margin-right:8px">
+          <strong style="color:#2B6CB0">💙 Blood Was Not Needed Anymore</strong>
+          <span style="display:block;font-size:.78rem;color:#718096;margin-top:3px;margin-left:20px">I reached hospital but blood was already arranged from another source. No cooldown.</span>
+        </label>
+
+        <label style="display:block;padding:12px;border:2px solid #E2E8F0;border-radius:8px;cursor:pointer;transition:border-color .2s" id="opt3">
+          <input type="radio" name="outcome" value="Rejected" onchange="highlight()" style="margin-right:8px">
+          <strong style="color:#744210">⚠️ I Was Medically Rejected</strong>
+          <span style="display:block;font-size:.78rem;color:#718096;margin-top:3px;margin-left:20px">Hospital doctor found me unfit to donate today. No cooldown — please consult a doctor.</span>
+        </label>
+      </div>
+      <button type="submit" class="btn btn-dark" style="width:100%;margin-top:.5rem">Submit Outcome</button>
+    </form>
+  </div>
+</div>
+<script>
+function highlight(){
+  ['opt1','opt2','opt3'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.style.borderColor=el.querySelector('input').checked?'#C53030':'#E2E8F0';
+  });
+}
+</script>
+{% endblock %}

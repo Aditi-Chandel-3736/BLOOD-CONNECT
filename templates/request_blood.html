@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width:660px;margin:0 auto">
+<div class="page-header"><h1>🚨 Request Blood</h1><p>Fill details — matching donors will be alerted instantly</p></div>
+<div style="background:#FED7D7;border:1px solid #FC8181;border-radius:8px;padding:12px 16px;margin-bottom:1.2rem;font-size:.84rem;color:#742A2A;font-weight:500">
+  ⚠️ Only submit genuine emergency requests. False requests waste donor time and endanger real patients.
+</div>
+<div class="card">
+<form method="POST" action="/request-blood">
+  <div class="section-title">Patient Details</div>
+  <div class="grid-2">
+    <div class="form-group"><label class="form-label">Patient Name <span>*</span></label><input type="text" name="patient_name" class="form-control" placeholder="Full name" required></div>
+    <div class="form-group"><label class="form-label">Blood Group Needed <span>*</span></label>
+      <select name="blood_group" class="form-control" required>
+        <option value="">-- Select --</option>
+        {% for bg in ["A+","A-","B+","B-","O+","O-","AB+","AB-"] %}<option value="{{bg}}">{{bg}}</option>{% endfor %}
+      </select>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="form-group"><label class="form-label">Units Needed <span>*</span></label><input type="number" name="units_needed" class="form-control" placeholder="Number of units" min="1" max="10" value="1" required></div>
+    <div class="form-group"><label class="form-label">Urgency <span>*</span></label>
+      <select name="urgency" class="form-control" required>
+        <option value="Normal">Normal</option>
+        <option value="Urgent">Urgent</option>
+        <option value="Critical">Critical</option>
+      </select>
+    </div>
+  </div>
+  <div class="section-title" style="margin-top:1.2rem">Hospital Details</div>
+  <div class="grid-2">
+    <div class="form-group"><label class="form-label">Hospital Name <span>*</span></label><input type="text" name="hospital_name" class="form-control" placeholder="Name of hospital" required></div>
+    <div class="form-group"><label class="form-label">City <span>*</span></label><input type="text" name="city" class="form-control" placeholder="e.g. Mumbai" required></div>
+  </div>
+  <div class="section-title" style="margin-top:1.2rem">Contact Details</div>
+  <div style="background:#F0FFF4;border:1px solid #9AE6B4;border-radius:8px;padding:10px 14px;margin-bottom:1rem;font-size:.82rem;color:#22543D">
+    📞 <strong>This phone number will be shared with donors</strong> so they can call you directly before coming.
+  </div>
+  <div class="grid-2">
+    <div class="form-group"><label class="form-label">Contact Person <span>*</span></label><input type="text" name="contact_person" class="form-control" placeholder="Name of contact" required></div>
+    <div class="form-group"><label class="form-label">Contact Phone <span>*</span></label><input type="tel" name="contact_phone" class="form-control" placeholder="10 digit number" required></div>
+  </div>
+  <div class="form-group"><label class="form-label">Contact Email (for confirmation)</label><input type="email" name="contact_email" class="form-control" placeholder="Optional — to receive confirmation email"></div>
+  <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:1rem">
+    <a href="/" class="btn btn-outline">Cancel</a>
+    <button type="submit" class="btn btn-red">🚨 Find Donors and Send Alerts</button>
+  </div>
+</form>
+</div>
+</div>
+{% endblock %}
