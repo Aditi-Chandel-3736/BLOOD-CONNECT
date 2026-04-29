@@ -37,7 +37,9 @@
     <td style="font-weight:600;color:#276749">{{r.donors_donated}}</td>
     <td><span class="badge badge-{{r.status|lower}}">{{r.status}}</span></td>
     <td><a href="/request/{{r.id}}" style="color:#C53030;font-weight:600;font-size:.8rem;text-decoration:none">View →</a></td>
+  
   </tr>
+
   {% endfor %}
   </tbody>
 </table>
@@ -90,4 +92,6 @@ function show(tab){
   document.getElementById('tab-don-btn').style.color = tab==='don'?'#fff':'#718096';
 }
 </script>
+
+
 {% endblock %}

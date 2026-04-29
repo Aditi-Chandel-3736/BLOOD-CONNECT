@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-header">
+  <h1>My Profile</h1>
+  <p>Your donor information and activity</p>
+</div>
+
+<div class="grid-2">
+
+  <!-- Profile Card -->
+  <div class="card">
+    <div class="section-title">Donor Details</div>
+
+    <p><strong>Name:</strong> {{ donor.name }}</p>
+    <p><strong>Email:</strong> {{ donor.email }}</p>
+    <p><strong>Phone:</strong> {{ donor.phone }}</p>
+    <p><strong>Blood Group:</strong> 
+      <span class="badge-bg">{{ donor.blood_group }}</span>
+    </p>
+    <p><strong>City:</strong> {{ donor.city }}</p>
+
+  </div>
+
+  <!-- Alerts Card -->
+  <div class="card">
+    <div class="section-title">Recent Alerts</div>
+
+    {% if alerts %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Blood</th>
+            <th>City</th>
+            <th>Urgency</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in alerts %}
+          <tr>
+            <td><span class="badge-bg">{{ a.blood_group }}</span></td>
+            <td>{{ a.city }}</td>
+            <td>
+              <span class="badge badge-{{ a.urgency|lower }}">
+                {{ a.urgency }}
+              </span>
+            </td>
+            <td>
+              <span class="badge badge-{{ a.status|lower }}">
+                {{ a.status }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p style="color:var(--grey);font-size:.85rem;">
+        No alerts yet.
+      </p>
+    {% endif %}
+
+  </div>
+
+</div>
+
+{% endblock %}

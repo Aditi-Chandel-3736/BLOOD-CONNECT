@@ -35,12 +35,14 @@ from database import (
     add_blood_request, get_all_requests, get_request_with_alerts,
     update_request_status, log_alert, donor_confirms_coming,
     donor_declines, record_donation_outcome, get_alert_by_id,
-    get_stats
+    get_stats, expire_old_requests, get_donor_alerts, get_donor_by_email
 )
 from email_sender import (
     send_registration_confirmation, send_bulk_alerts,
     send_requester_confirmation, send_outcome_thankyou
 )
+
+from apscheduler.schedulers.background import BackgroundScheduler
 
 # ── LOGGING SETUP ────────────────────────────────
 # PURPOSE: Records everything that happens in the app
@@ -90,6 +92,53 @@ def index():
     return render_template("index.html", stats=stats, feed=urgent_feed)
 
 
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
+
+@app.route("/admin/login", methods=["GET", "POST"])
+def admin_login():
+    if request.method == "POST":
+        if request.form.get("password") == ADMIN_PASSWORD:
+            session["is_admin"] = True
+            return redirect(url_for("dashboard"))
+        flash("Wrong password", "error")
+    return render_template("admin_login.html")
+
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask import session
+
+@app.route("/donor/login", methods=["GET", "POST"])
+def donor_login():
+    if request.method == "POST":
+        email    = request.form.get("email")
+        password = request.form.get("password")
+        donor    = get_donor_by_email(email)
+
+        if donor and check_password_hash(donor["password_hash"], password):
+            session["donor_id"] = donor["id"]
+            session["donor_name"] = donor["name"]
+            flash(f"Welcome back {donor['name']}!", "success")
+            return redirect(url_for("my_profile"))
+        flash("Wrong email or password", "error")
+    return render_template("donor_login.html")
+
+@app.route("/my-profile")
+def my_profile():
+    if "donor_id" not in session:
+        return redirect(url_for("donor_login"))
+    donor    = get_donor_by_id(session["donor_id"])
+    cooldown = get_cooldown_info(donor)
+    alerts   = get_donor_alerts(session["donor_id"])
+    return render_template("my_profile.html",
+                           donor=donor,
+                           cooldown=cooldown,
+                           alerts=alerts)
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("index"))
+
+
 # ════════════════════════════════════════════════════════
 # DONOR REGISTRATION
 # URL: localhost:5000/register
@@ -113,9 +162,10 @@ def register():
         blood_group = request.form.get("blood_group", "")
         city        = request.form.get("city",        "").strip()
         area        = request.form.get("area",        "").strip()
+        password    = request.form.get("password",    "").strip()
 
         # VALIDATION 1 — Check all required fields are filled
-        if not all([name, email, phone, blood_group, city, area]):
+        if not all([name, email, phone, blood_group, city, area, password]):
             flash("Please fill all required fields.", "error")
             return render_template("register.html")
 
@@ -143,7 +193,7 @@ def register():
 
         # Save to database
         donor_id = add_donor(name, email, phone, age,
-                             blood_group, city, area)
+                             blood_group, city, area, generate_password_hash(password))
 
         # If donor_id is None — email already registered
         if not donor_id:
@@ -413,4 +463,9 @@ if __name__ == "__main__":
     # 1. Auto-reloads when you save a file
     # 2. Shows detailed error pages
     # 3. NEVER use debug=True in production
+   
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(expire_old_requests, 'interval', minutes=1)  # testing
+    scheduler.start()
     app.run(debug=True, port=5000, host="0.0.0.0")
+

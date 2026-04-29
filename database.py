@@ -66,7 +66,8 @@ def init_db():
             area          TEXT    NOT NULL,
             is_available  INTEGER DEFAULT 1,
             last_donated  DATE,
-            registered_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            registered_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            password_hash TEXT
         )
     """)
     # EXPLANATION OF COLUMNS:
@@ -182,7 +183,7 @@ def _add_demo_data():
 # DONOR FUNCTIONS
 # ═══════════════════════════════════════════════════
 
-def add_donor(name, email, phone, age, blood_group, city, area):
+def add_donor(name, email, phone, age, blood_group, city, area, password_hash):
     """
     PURPOSE: Saves a new donor to the database
     WHY: When someone fills the registration form,
@@ -192,9 +193,9 @@ def add_donor(name, email, phone, age, blood_group, city, area):
     conn = get_db()
     try:
         conn.execute("""
-            INSERT INTO donors (name, email, phone, age, blood_group, city, area)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (name, email, phone, age, blood_group, city, area))
+            INSERT INTO donors (name, email, phone, age, blood_group, city, area, password_hash)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (name, email, phone, age, blood_group, city, area, password_hash))
         donor_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
         conn.commit()
         logger.info(f"Donor registered: {name} | {blood_group} | {city}")
@@ -628,3 +629,57 @@ def get_stats():
         "cities":         cities,
         "total_donations": donated
     }
+
+def expire_old_requests():
+    """
+    PURPOSE: Automatically closes requests that are too old.
+    WHY: Blood emergencies are time sensitive. A request older
+    than 24-72 hours is no longer relevant. Keeping old requests
+    open wastes donor time and damages trust.
+    """
+    conn = get_db()
+    conn.execute("""
+        UPDATE blood_requests
+        SET status = 'Expired'
+        WHERE status = 'Open'
+        AND (
+            (urgency = 'Critical' AND
+             requested_at <= datetime('now', '-24 hours'))
+            OR
+            (urgency = 'Urgent' AND
+             requested_at <= datetime('now', '-48 hours'))
+            OR
+            (urgency = 'Normal' AND
+             requested_at <= datetime('now', '-72 hours'))
+        )
+    """)
+    conn.commit()
+    conn.close()
+    logger.info("Old requests expired automatically")
+
+def get_donor_by_email(email):
+    conn = get_db()
+    conn.row_factory = sqlite3.Row
+
+    donor = conn.execute("""
+        SELECT * FROM donors
+        WHERE email = ?
+    """, (email,)).fetchone()
+
+    conn.close()
+    return donor
+
+def get_donor_alerts(donor_id):
+    conn = get_db()
+    conn.row_factory = sqlite3.Row
+
+    alerts = conn.execute("""
+        SELECT a.*, br.blood_group, br.city, br.urgency
+        FROM alerts a
+        JOIN blood_requests br ON a.request_id = br.id
+        WHERE a.donor_id = ?
+        ORDER BY a.sent_at DESC
+    """, (donor_id,)).fetchall()
+
+    conn.close()
+    return alerts

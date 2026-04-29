@@ -1,37 +1,51 @@
 {% extends "base.html" %}
 {% block content %}
 <div style="max-width:620px;margin:0 auto">
-<div class="page-header"><h1>🩸 Register as Blood Donor</h1><p>Join our network of life savers</p></div>
-<div class="card">
-<form method="POST" action="/register">
-  <div class="section-title">Personal Details</div>
-  <div class="grid-2">
-    <div class="form-group"><label class="form-label">Full Name <span>*</span></label><input type="text" name="name" class="form-control" placeholder="Your full name" required></div>
-    <div class="form-group"><label class="form-label">Age <span>*</span></label><input type="number" name="age" class="form-control" placeholder="18 to 65" min="18" max="65" required></div>
+  <div class="page-header">
+    <h1>🩸 Register as Blood Donor</h1>
+    <p>Join our network of life savers</p>
   </div>
-  <div class="grid-2">
-    <div class="form-group"><label class="form-label">Email <span>*</span></label><input type="email" name="email" class="form-control" placeholder="you@email.com" required></div>
-    <div class="form-group"><label class="form-label">Phone <span>*</span></label><input type="tel" name="phone" class="form-control" placeholder="10 digit number" required></div>
+  <div class="card">
+    <form method="POST" action="/register">
+      <div class="section-title">Personal Details</div>
+      <div class="grid-2">
+        <div class="form-group"><label class="form-label">Full Name <span>*</span></label><input type="text" name="name"
+            class="form-control" placeholder="Your full name" required></div>
+        <div class="form-group"><label class="form-label">Age <span>*</span></label><input type="number" name="age"
+            class="form-control" placeholder="18 to 65" min="18" max="65" required></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-group"><label class="form-label">Email <span>*</span></label><input type="email" name="email"
+            class="form-control" placeholder="you@email.com" required></div>
+        <div class="form-group"><label class="form-label">Phone <span>*</span></label><input type="tel" name="phone"
+            class="form-control" placeholder="10 digit number" required></div>
+      </div>
+      <div class="section-title" style="margin-top:1.2rem">Blood and Location</div>
+      <div class="grid-2">
+        <div class="form-group"><label class="form-label">Blood Group <span>*</span></label>
+          <select name="blood_group" class="form-control" required>
+            <option value="">-- Select --</option>
+            {% for bg in ["A+","A-","B+","B-","O+","O-","AB+","AB-"] %}<option value="{{bg}}">{{bg}}</option>{% endfor
+            %}
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">City <span>*</span></label><input type="text" name="city"
+            class="form-control" placeholder="e.g. Mumbai" required></div>
+      </div>
+      <div class="form-group"><label class="form-label">Area / Locality <span>*</span></label><input type="text"
+          name="area" class="form-control" placeholder="e.g. Andheri West" required></div>
+      <div class="form-group"><label class="form-label">Create Password <span>*</span></label><input type="password"
+          name="password" class="form-control" minlength="8" maxlength="15" required></div>
+      <div
+        style="background:#FFFFF0;border:1px solid #ECC94B;border-radius:8px;padding:12px;margin:1rem 0;font-size:.82rem;color:#744210">
+        ⚕️ <strong>Medical Note:</strong> You must wait <strong>56 days</strong> between whole blood donations (WHO
+        guideline). System tracks this automatically — cooldown only starts after you confirm actual donation.
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:1rem">
+        <a href="/" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-red">🩸 Register as Donor</button>
+      </div>
+    </form>
   </div>
-  <div class="section-title" style="margin-top:1.2rem">Blood and Location</div>
-  <div class="grid-2">
-    <div class="form-group"><label class="form-label">Blood Group <span>*</span></label>
-      <select name="blood_group" class="form-control" required>
-        <option value="">-- Select --</option>
-        {% for bg in ["A+","A-","B+","B-","O+","O-","AB+","AB-"] %}<option value="{{bg}}">{{bg}}</option>{% endfor %}
-      </select>
-    </div>
-    <div class="form-group"><label class="form-label">City <span>*</span></label><input type="text" name="city" class="form-control" placeholder="e.g. Mumbai" required></div>
-  </div>
-  <div class="form-group"><label class="form-label">Area / Locality <span>*</span></label><input type="text" name="area" class="form-control" placeholder="e.g. Andheri West" required></div>
-  <div style="background:#FFFFF0;border:1px solid #ECC94B;border-radius:8px;padding:12px;margin:1rem 0;font-size:.82rem;color:#744210">
-    ⚕️ <strong>Medical Note:</strong> You must wait <strong>56 days</strong> between whole blood donations (WHO guideline). System tracks this automatically — cooldown only starts after you confirm actual donation.
-  </div>
-  <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:1rem">
-    <a href="/" class="btn btn-outline">Cancel</a>
-    <button type="submit" class="btn btn-red">🩸 Register as Donor</button>
-  </div>
-</form>
-</div>
 </div>
 {% endblock %}
