@@ -678,7 +678,7 @@ def get_donor_alerts(donor_id):
         FROM alerts a
         JOIN blood_requests br ON a.request_id = br.id
         WHERE a.donor_id = ?
-        ORDER BY a.sent_at DESC
+        ORDER BY a.alerted_at DESC
     """, (donor_id,)).fetchall()
 
     conn.close()
