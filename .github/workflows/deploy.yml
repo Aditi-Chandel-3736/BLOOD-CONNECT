@@ -24,6 +24,9 @@ jobs:
       - name: Test app imports correctly
         run: python -c "from app import app; print('App imports OK')"
 
+      - name: Run automated tests
+        run: python -m unittest discover -s tests -v
+
       - name: Build Docker image
         run: docker build -t bloodconnect .
 

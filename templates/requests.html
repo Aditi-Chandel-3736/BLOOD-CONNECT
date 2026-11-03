@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}Find blood requests — BloodConnect{% endblock %}
+{% block content %}
+<div class="page-header">
+  <span class="eyebrow">Search &amp; filter</span>
+  <h1>🩸 Blood requests</h1>
+  <p>General details only — patient names and phone numbers are shared only with donors who accept.</p>
+</div>
+
+<form method="GET" action="{{ url_for('browse_requests') }}" class="card mb-3" role="search">
+  <div class="filters">
+    <div class="form-group">
+      <label class="form-label" for="f-bg">Blood group</label>
+      <select id="f-bg" name="blood_group" class="form-control">
+        <option value="">Any group</option>
+        {% for bg in BLOOD_GROUPS %}<option value="{{ bg }}" {{ 'selected' if filters.blood_group == bg }}>{{ bg }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="f-city">Location</label>
+      <input id="f-city" name="city" value="{{ filters.city }}" class="form-control" placeholder="City, e.g. Mumbai" maxlength="60">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="f-urg">Urgency</label>
+      <select id="f-urg" name="urgency" class="form-control">
+        <option value="">Any urgency</option>
+        {% for u in URGENCY_LEVELS %}<option value="{{ u }}" {{ 'selected' if filters.urgency == u }}>{{ u }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="f-status">Status</label>
+      <select id="f-status" name="status" class="form-control">
+        <option value="active" {{ 'selected' if filters.status == 'active' }}>Active (open)</option>
+        {% for s in ALL_STATUSES %}<option value="{{ s }}" {{ 'selected' if filters.status == s }}>{{ s }}</option>{% endfor %}
+        <option value="all" {{ 'selected' if filters.status == 'all' }}>All statuses</option>
+      </select>
+    </div>
+    <div class="row">
+      <button type="submit" class="btn btn-red">Search</button>
+      <a href="{{ url_for('browse_requests', compatible=0) }}" class="btn btn-ghost">Reset</a>
+    </div>
+  </div>
+  {% if is_donor %}
+  <label class="check mt-2">
+    <input type="checkbox" name="compatible" value="1" {{ 'checked' if filters.compatible }}>
+    Only show requests my blood group ({{ current_user.blood_group }}) can donate to
+  </label>
+  <input type="hidden" name="compatible" value="0">
+  {% endif %}
+</form>
+
+<p class="small text-muted mb-2">{{ requests|length }} request{{ 's' if requests|length != 1 }} found</p>
+{% if requests %}
+  <div class="req-list">
+    {% for r in requests %}{{ m.request_card(r) }}{% endfor %}
+  </div>
+{% else %}
+  <div class="card empty"><span class="big">🔍</span>No requests match these filters.
+    {% if not current_user %}<p class="mt-1"><a href="{{ url_for('register') }}">Register as a donor</a> to get alerts when someone nearby needs blood.</p>{% endif %}
+  </div>
+{% endif %}
+{% endblock %}

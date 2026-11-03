@@ -1,0 +1,112 @@
+{# ════════════════════════════════════════════════════════
+   _macros.html — reusable building blocks for every page.
+   Using the same macro everywhere keeps the design consistent.
+   ════════════════════════════════════════════════════════ #}
+
+{% macro status_badge(status) -%}
+  <span class="badge badge-{{ status|slug }}">{{ status }}</span>
+{%- endmacro %}
+
+{% macro urgency_badge(urgency) -%}
+  <span class="badge badge-{{ urgency|lower }}">{{ urgency }}</span>
+{%- endmacro %}
+
+{% macro response_badge(a) -%}
+  {%- if a.stage == 'Confirmed' -%}<span class="badge badge-accepted">Accepted</span>
+  {%- elif a.stage == 'Alerted' -%}<span class="badge badge-awaiting">Awaiting your reply</span>
+  {%- else -%}<span class="badge badge-{{ a.donation_outcome|lower }}">{{ {'NotNeeded':'Not needed','Rejected':'Deferred'}.get(a.donation_outcome, a.donation_outcome) }}</span>
+  {%- endif -%}
+{%- endmacro %}
+
+{% macro field_error(errors, name) -%}
+  <div class="field-error" id="{{ name }}-error" role="alert">{{ errors.get(name, '') if errors else '' }}</div>
+{%- endmacro %}
+
+{% macro invalid(errors, name) -%}{{ ' is-invalid' if errors and errors.get(name) }}{%- endmacro %}
+
+{% macro text_input(name, label, value='', errors=None, required=True, placeholder='', type='text', maxlength=60, hint='', autocomplete='') -%}
+  <div class="form-group">
+    <label class="form-label" for="{{ name }}">{{ label }}{% if required %} <span class="req">*</span>{% endif %}</label>
+    <input type="{{ type }}" id="{{ name }}" name="{{ name }}" value="{{ value or '' }}"
+           class="form-control{{ invalid(errors, name) }}" placeholder="{{ placeholder }}"
+           maxlength="{{ maxlength }}" {% if required %}required{% endif %}
+           {% if autocomplete %}autocomplete="{{ autocomplete }}"{% endif %}
+           aria-describedby="{{ name }}-error">
+    {% if hint %}<div class="form-hint">{{ hint }}</div>{% endif %}
+    {{ field_error(errors, name) }}
+  </div>
+{%- endmacro %}
+
+{% macro phone_input(name, label, value='', errors=None, hint='10-digit Indian mobile number, without +91 or 0') -%}
+  <div class="form-group">
+    <label class="form-label" for="{{ name }}">{{ label }} <span class="req">*</span>
+      <span class="counter-hint text-muted small" id="{{ name }}-count">0/10</span></label>
+    <div class="input-group">
+      <span class="input-prefix" aria-hidden="true">+91</span>
+      <input type="tel" id="{{ name }}" name="{{ name }}" value="{{ value or '' }}"
+             class="form-control{{ invalid(errors, name) }}" placeholder="9876543210"
+             inputmode="numeric" autocomplete="tel-national" maxlength="10" minlength="10"
+             pattern="[6-9][0-9]{9}" title="Exactly 10 digits, starting with 6, 7, 8 or 9"
+             required data-phone aria-describedby="{{ name }}-hint {{ name }}-error">
+    </div>
+    <div class="form-hint" id="{{ name }}-hint">{{ hint }}</div>
+    {{ field_error(errors, name) }}
+  </div>
+{%- endmacro %}
+
+{% macro password_input(name, label, errors=None, strength=False, match=None, autocomplete='current-password') -%}
+  <div class="form-group">
+    <label class="form-label" for="{{ name }}">{{ label }} <span class="req">*</span></label>
+    <div class="input-group">
+      <input type="password" id="{{ name }}" name="{{ name }}" class="form-control{{ invalid(errors, name) }}"
+             maxlength="128" required autocomplete="{{ autocomplete }}"
+             {% if strength %}data-strength minlength="8"{% endif %}
+             {% if match %}data-match="{{ match }}"{% endif %}
+             aria-describedby="{{ name }}-error{% if strength %} {{ name }}-rules{% endif %}">
+      <button type="button" class="pw-toggle" data-toggle-password="{{ name }}" aria-label="Show password" aria-pressed="false">Show</button>
+    </div>
+    {% if strength %}
+      <div class="pw-meter" aria-hidden="true"><span id="{{ name }}-meter"></span></div>
+      <div class="pw-meter-label" id="{{ name }}-label" aria-live="polite"></div>
+      <ul class="pw-rules" id="{{ name }}-rules">
+        {% for rule in PASSWORD_RULES %}<li>{{ rule|capitalize }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+    {{ field_error(errors, name) }}
+  </div>
+{%- endmacro %}
+
+{% macro blood_select(name, value='', errors=None, label='Blood Group') -%}
+  <div class="form-group">
+    <label class="form-label" for="{{ name }}">{{ label }} <span class="req">*</span></label>
+    <select id="{{ name }}" name="{{ name }}" class="form-control{{ invalid(errors, name) }}" required aria-describedby="{{ name }}-error">
+      <option value="">— Select —</option>
+      {% for bg in BLOOD_GROUPS %}<option value="{{ bg }}" {{ 'selected' if value == bg }}>{{ bg }}</option>{% endfor %}
+    </select>
+    {{ field_error(errors, name) }}
+  </div>
+{%- endmacro %}
+
+{% macro request_card(r, show_status=True) -%}
+  <a href="{{ url_for('request_detail', req_id=r.id) }}"
+     class="req-card{{ ' is-critical' if r.urgency == 'Critical' and r.status in ACTIVE_STATUSES }}{{ ' is-urgent' if r.urgency == 'Urgent' and r.status in ACTIVE_STATUSES }}">
+    <span class="blood-pill lg">{{ r.blood_group }}</span>
+    <div>
+      <div class="req-title">{{ r.hospital_name }}</div>
+      <div class="req-meta">
+        <span>📍 {{ r.city }}</span>
+        <span>🩸 {{ r.units_needed }} unit{{ 's' if r.units_needed != 1 }}</span>
+        {% if r.required_by %}<span>📅 Needed by {{ r.required_by|nicedate }}</span>{% endif %}
+        <span>🕒 {{ r.requested_at|localtime('%d %b, %I:%M %p') }}</span>
+      </div>
+      {% if r.public_note %}<div class="req-note">{{ r.public_note|truncate(110) }}</div>{% endif %}
+    </div>
+    <div class="req-side">
+      {{ urgency_badge(r.urgency) }}
+      {% if show_status %}{{ status_badge(r.status) }}{% endif %}
+      {% if r.accepted_count is defined and r.status in ACTIVE_STATUSES %}
+        <span class="small text-muted">{{ r.accepted_count }}/{{ r.units_needed }} donor{{ 's' if r.units_needed != 1 }} accepted</span>
+      {% endif %}
+    </div>
+  </a>
+{%- endmacro %}

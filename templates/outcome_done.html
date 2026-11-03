@@ -1,24 +1,28 @@
 {% extends "base.html" %}
+{% block title %}Thank you — BloodConnect{% endblock %}
 {% block content %}
-<div style="max-width:480px;margin:3rem auto;text-align:center">
-<div class="card">
-  {% if outcome == 'Donated' %}
-  <div style="font-size:4rem;margin-bottom:1rem">🏆</div>
-  <h2 style="font-family:'Playfair Display',serif;color:#276749">You Saved a Life!</h2>
-  <p style="color:#718096;margin:1rem 0">Your donation has been recorded. Your 56-day cooldown has started. You will be automatically eligible to donate again after this period.</p>
-  <div style="background:#F0FFF4;border:1px solid #9AE6B4;border-radius:8px;padding:1rem;margin:1rem 0;font-size:.84rem;color:#276749">
-    <strong>Cooldown started today.</strong><br>You will be eligible again in 56 days.
+<div class="narrow-sm" {% if outcome == 'Donated' %}data-celebrate{% endif %}>
+  <div class="card center mt-2">
+    {% if outcome == 'Donated' %}
+    <div class="thanks-icon"><span class="heartbeat">🏆</span></div>
+    <h2 style="font-family:var(--font-display);color:var(--green)">You helped save a life!</h2>
+    <p class="text-muted mt-1">Your donation has been recorded and the requester has been told. BloodConnect will pause
+      new alerts for {{ COOLDOWN_DAYS }} days.</p>
+    <div class="notice warning mt-2" style="text-align:left"><span class="notice-icon">⚕️</span>
+      <span>Rest, drink fluids, and follow the blood bank's aftercare advice. Before donating again, check with the blood bank that you are eligible.</span></div>
+    {% elif outcome == 'NotNeeded' %}
+    <div class="thanks-icon" style="background:var(--blue-bg);border-color:var(--blue-line)">💙</div>
+    <h2 style="font-family:var(--font-display)">Thank you for showing up</h2>
+    <p class="text-muted mt-1">The blood was not needed — but your willingness to help matters greatly. Your alerts continue as normal.</p>
+    {% else %}
+    <div class="thanks-icon" style="background:var(--amber-bg);border-color:var(--amber-line)">💛</div>
+    <h2 style="font-family:var(--font-display)">Thank you for trying</h2>
+    <p class="text-muted mt-1">We are sorry you could not donate this time. Your alerts continue — please consult a doctor about future donations.</p>
+    {% endif %}
+    <div class="row mt-3" style="justify-content:center">
+      <a href="{{ url_for('my_profile') }}" class="btn btn-dark">Go to my dashboard</a>
+      <a href="{{ url_for('index') }}" class="btn btn-outline">Home</a>
+    </div>
   </div>
-  {% elif outcome == 'NotNeeded' %}
-  <div style="font-size:4rem;margin-bottom:1rem">💙</div>
-  <h2 style="font-family:'Playfair Display',serif;color:#1A202C">Thank You for Showing Up</h2>
-  <p style="color:#718096;margin:1rem 0">The blood was not needed — but your willingness to help matters greatly. Your cooldown timer has NOT been affected. You are still eligible to donate.</p>
-  {% else %}
-  <div style="font-size:4rem;margin-bottom:1rem">💛</div>
-  <h2 style="font-family:'Playfair Display',serif;color:#1A202C">Thank You for Trying</h2>
-  <p style="color:#718096;margin:1rem 0">We are sorry you could not donate this time. Your cooldown has NOT been affected. Please consult a doctor about your eligibility.</p>
-  {% endif %}
-  <a href="/" class="btn btn-dark" style="display:inline-block;margin-top:1rem">Back to Home</a>
-</div>
 </div>
 {% endblock %}

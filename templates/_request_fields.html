@@ -1,0 +1,66 @@
+{# Shared fields for request_blood.html and request_edit.html.
+   Set "locked = True" before including to show patient / blood group / city as read-only. #}
+{% import "_macros.html" as m with context %}
+
+<div class="section-title">🔒 Patient details <span class="badge badge-plain badge-donor">Private</span></div>
+<div class="grid-2">
+  {% if locked %}
+    <div class="form-group"><span class="form-label">Patient name</span><div class="form-control" aria-readonly="true">{{ form.patient_name }}</div></div>
+    <div class="form-group"><span class="form-label">Blood group needed</span><div class="form-control" aria-readonly="true">{{ form.blood_group }}</div></div>
+  {% else %}
+    {{ m.text_input('patient_name', 'Patient name', form.patient_name, errors, placeholder='Full name', hint='Shown only to donors who accept.') }}
+    {{ m.blood_select('blood_group', form.blood_group, errors, label='Blood group needed') }}
+  {% endif %}
+</div>
+
+<div class="section-title mt-2">🌐 Public details <span class="badge badge-plain badge-recipient">Visible to donors</span></div>
+<div class="grid-2">
+  <div class="form-group">
+    <label class="form-label" for="units_needed">Units needed <span class="req">*</span></label>
+    <input type="number" id="units_needed" name="units_needed" value="{{ form.units_needed or 1 }}" min="1" max="10" required
+           class="form-control{{ m.invalid(errors, 'units_needed') }}" inputmode="numeric" aria-describedby="units_needed-error">
+    <div class="form-hint">Each accepted donor counts as one unit.</div>
+    {{ m.field_error(errors, 'units_needed') }}
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="urgency">Urgency <span class="req">*</span></label>
+    <select id="urgency" name="urgency" class="form-control{{ m.invalid(errors, 'urgency') }}" required aria-describedby="urgency-error">
+      {% for u in URGENCY_LEVELS %}<option value="{{ u }}" {{ 'selected' if form.urgency == u }}>{{ u }}</option>{% endfor %}
+    </select>
+    {{ m.field_error(errors, 'urgency') }}
+  </div>
+</div>
+<div class="grid-2">
+  {{ m.text_input('hospital_name', 'Hospital / blood bank', form.hospital_name, errors, maxlength=120, placeholder='Name of hospital') }}
+  {% if locked %}
+    <div class="form-group"><span class="form-label">City</span><div class="form-control" aria-readonly="true">{{ form.city }}</div></div>
+  {% else %}
+    {{ m.text_input('city', 'City', form.city, errors, placeholder='e.g. Mumbai') }}
+  {% endif %}
+</div>
+<div class="form-group">
+  <label class="form-label" for="required_by">Needed by (optional)</label>
+  <input type="date" id="required_by" name="required_by" value="{{ form.required_by or '' }}"
+         class="form-control{{ m.invalid(errors, 'required_by') }}" aria-describedby="required_by-error">
+  <div class="form-hint">Without a date, requests expire after 24h (Critical), 48h (Urgent) or 72h (Normal) if no donor accepts.</div>
+  {{ m.field_error(errors, 'required_by') }}
+</div>
+<div class="form-group">
+  <label class="form-label" for="public_note">Short public description (optional) <span class="counter-hint text-muted small" id="public_note-count"></span></label>
+  <textarea id="public_note" name="public_note" maxlength="300" class="form-control{{ m.invalid(errors, 'public_note') }}"
+            placeholder="e.g. Needed for planned surgery on Friday morning" aria-describedby="public_note-error">{{ form.public_note or '' }}</textarea>
+  <div class="form-hint">⚠️ Everyone can read this. Don't include names, phone numbers or addresses.</div>
+  {{ m.field_error(errors, 'public_note') }}
+</div>
+
+<div class="section-title mt-2">🔒 Contact details <span class="badge badge-plain badge-donor">Shared only after a donor accepts</span></div>
+<div class="grid-2">
+  {{ m.text_input('contact_person', 'Contact person', form.contact_person, errors, placeholder='Name of contact') }}
+  {{ m.phone_input('contact_phone', 'Contact phone', form.contact_phone, errors) }}
+</div>
+<div class="form-group">
+  <label class="form-label" for="private_note">Private note for accepted donors (optional) <span class="counter-hint text-muted small" id="private_note-count"></span></label>
+  <textarea id="private_note" name="private_note" maxlength="300" class="form-control{{ m.invalid(errors, 'private_note') }}"
+            placeholder="e.g. Ward 4B, ask for Dr. Rao at the blood bank counter" aria-describedby="private_note-error">{{ form.private_note or '' }}</textarea>
+  {{ m.field_error(errors, 'private_note') }}
+</div>

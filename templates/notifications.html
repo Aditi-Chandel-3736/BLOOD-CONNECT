@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Notifications — BloodConnect{% endblock %}
+{% block content %}
+<div class="narrow">
+  <div class="page-header">
+    <h1>🔔 Notifications</h1>
+    <p>Updates about requests you created or responded to.</p>
+  </div>
+  <div class="card">
+    {% if items %}
+      {% for n in items %}
+      <div class="notif{{ ' unread' if not n.is_read }}">
+        <span class="notif-dot" aria-hidden="true"></span>
+        <div>
+          {% if n.link %}<a href="{{ n.link }}">{{ n.message }}</a>{% else %}{{ n.message }}{% endif %}
+          <time>{{ n.created_at|localtime }}</time>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty"><span class="big">📭</span>You have no notifications yet.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

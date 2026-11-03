@@ -1,51 +1,79 @@
 {% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}Create account — BloodConnect{% endblock %}
 {% block content %}
-<div style="max-width:620px;margin:0 auto">
-  <div class="page-header">
-    <h1>🩸 Register as Blood Donor</h1>
-    <p>Join our network of life savers</p>
+<div class="narrow">
+  <div class="page-header center">
+    <span class="eyebrow"><span class="heartbeat">❤️</span> Join BloodConnect</span>
+    <h1>Create your free account</h1>
+    <p>Register as a donor to receive alerts, or as a requester to ask for blood.</p>
   </div>
+
   <div class="card">
-    <form method="POST" action="/register">
-      <div class="section-title">Personal Details</div>
+    <form method="POST" action="{{ url_for('register', next=request.args.get('next')) }}">
+      {{ csrf_field() }}
+
+      <div class="section-title">I want to…</div>
+      <div class="choice-grid form-group" data-role-choice role="radiogroup" aria-label="Account type">
+        <label class="choice">
+          <input type="radio" name="role" value="donor" {{ 'checked' if form.role != 'recipient' }}>
+          <span><strong>🩸 Donate blood</strong><small>Get alerts when someone nearby needs your blood group.</small></span>
+        </label>
+        <label class="choice">
+          <input type="radio" name="role" value="recipient" {{ 'checked' if form.role == 'recipient' }}>
+          <span><strong>🏥 Request blood</strong><small>For a patient, family member or as hospital staff.</small></span>
+        </label>
+      </div>
+      {{ m.field_error(errors, 'role') }}
+
+      <div class="section-title mt-2">Personal details</div>
       <div class="grid-2">
-        <div class="form-group"><label class="form-label">Full Name <span>*</span></label><input type="text" name="name"
-            class="form-control" placeholder="Your full name" required></div>
-        <div class="form-group"><label class="form-label">Age <span>*</span></label><input type="number" name="age"
-            class="form-control" placeholder="18 to 65" min="18" max="65" required></div>
+        {{ m.text_input('name', 'Full name', form.name, errors, placeholder='Your full name', autocomplete='name') }}
+        {{ m.text_input('email', 'Email', form.email, errors, type='email', maxlength=254, placeholder='you@example.com', autocomplete='email') }}
       </div>
       <div class="grid-2">
-        <div class="form-group"><label class="form-label">Email <span>*</span></label><input type="email" name="email"
-            class="form-control" placeholder="you@email.com" required></div>
-        <div class="form-group"><label class="form-label">Phone <span>*</span></label><input type="tel" name="phone"
-            class="form-control" placeholder="10 digit number" required></div>
-      </div>
-      <div class="section-title" style="margin-top:1.2rem">Blood and Location</div>
-      <div class="grid-2">
-        <div class="form-group"><label class="form-label">Blood Group <span>*</span></label>
-          <select name="blood_group" class="form-control" required>
-            <option value="">-- Select --</option>
-            {% for bg in ["A+","A-","B+","B-","O+","O-","AB+","AB-"] %}<option value="{{bg}}">{{bg}}</option>{% endfor
-            %}
-          </select>
+        {{ m.phone_input('phone', 'Mobile number', form.phone, errors) }}
+        <div data-donor-only>
+          <div class="form-group">
+            <label class="form-label" for="age">Age <span class="req">*</span></label>
+            <input type="number" id="age" name="age" value="{{ form.age or '' }}" class="form-control{{ m.invalid(errors, 'age') }}"
+                   placeholder="18 to 65" min="18" max="65" inputmode="numeric" required aria-describedby="age-error">
+            {{ m.field_error(errors, 'age') }}
+          </div>
         </div>
-        <div class="form-group"><label class="form-label">City <span>*</span></label><input type="text" name="city"
-            class="form-control" placeholder="e.g. Mumbai" required></div>
       </div>
-      <div class="form-group"><label class="form-label">Area / Locality <span>*</span></label><input type="text"
-          name="area" class="form-control" placeholder="e.g. Andheri West" required></div>
-      <div class="form-group"><label class="form-label">Create Password <span>*</span></label><input type="password"
-          name="password" class="form-control" minlength="8" maxlength="15" required></div>
-      <div
-        style="background:#FFFFF0;border:1px solid #ECC94B;border-radius:8px;padding:12px;margin:1rem 0;font-size:.82rem;color:#744210">
-        ⚕️ <strong>Medical Note:</strong> You must wait <strong>56 days</strong> between whole blood donations (WHO
-        guideline). System tracks this automatically — cooldown only starts after you confirm actual donation.
+
+      <div class="section-title mt-2">Blood group and location</div>
+      <div class="grid-2">
+        <div data-donor-only>{{ m.blood_select('blood_group', form.blood_group, errors) }}</div>
+        {{ m.text_input('city', 'City', form.city, errors, placeholder='e.g. Mumbai', autocomplete='address-level2') }}
       </div>
-      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:1rem">
-        <a href="/" class="btn btn-outline">Cancel</a>
-        <button type="submit" class="btn btn-red">🩸 Register as Donor</button>
+      {{ m.text_input('area', 'Area / locality', form.area, errors, placeholder='e.g. Andheri West', hint='Only your city is used for matching. Your area is never shown publicly.') }}
+
+      <div class="section-title mt-2">Security</div>
+      <div class="grid-2">
+        {{ m.password_input('password', 'Create password', errors, strength=True, autocomplete='new-password') }}
+        {{ m.password_input('confirm_password', 'Confirm password', errors, match='password', autocomplete='new-password') }}
+      </div>
+
+      <div class="notice info mt-1">
+        <span class="notice-icon">🔒</span>
+        <span><strong>Your privacy:</strong> your phone number is shared only with a requester whose
+          request you accept (or, for requesters, with donors who accept your request).</span>
+      </div>
+      <div class="notice warning mt-1" data-donor-only>
+        <span class="notice-icon">⚕️</span>
+        <span><strong>Medical note:</strong> safe gaps between donations depend on local rules and your health.
+          BloodConnect pauses alerts for {{ COOLDOWN_DAYS }} days after a recorded donation, but always confirm
+          your eligibility with the blood bank or a doctor before donating.</span>
+      </div>
+
+      <div class="actions">
+        <a href="{{ url_for('index') }}" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-red" data-loading="Creating account…">Create account</button>
       </div>
     </form>
   </div>
+  <p class="center small text-muted mt-2">Already registered? <a href="{{ url_for('donor_login') }}">Log in here</a></p>
 </div>
 {% endblock %}
