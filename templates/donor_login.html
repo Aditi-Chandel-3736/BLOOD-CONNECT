@@ -1,35 +1,26 @@
 {% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}Log in — BloodConnect{% endblock %}
 {% block content %}
+<div class="narrow-sm">
+  <div class="card mt-2">
+    <div class="page-header center">
+      <div class="thanks-icon red" aria-hidden="true"><span class="heartbeat">🩸</span></div>
+      <h1>Welcome back</h1>
+      <p>Log in to your donor or requester account.</p>
+    </div>
 
-<div class="card" style="max-width:420px;margin:2rem auto;">
+    <form method="POST" action="{{ url_for('donor_login', next=request.args.get('next')) }}">
+      {{ csrf_field() }}
+      {{ m.text_input('email', 'Email', email, type='email', maxlength=254, placeholder='you@example.com', autocomplete='email') }}
+      {{ m.password_input('password', 'Password') }}
+      <button type="submit" class="btn btn-red btn-block" data-loading="Checking…">Log in</button>
+    </form>
 
-  <div class="page-header">
-    <h1>Donor Login</h1>
-    <p>Welcome back. Ready to save lives?</p>
+    <p class="center small text-muted mt-2">
+      New here? <a href="{{ url_for('register', next=request.args.get('next')) }}">Create a free account</a>
+    </p>
   </div>
-
-  <form method="POST">
-
-    <div class="form-group">
-      <label class="form-label">Email</label>
-      <input type="email" name="email" class="form-control" placeholder="Enter your email" required>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">Password</label>
-      <input type="password" name="password" class="form-control" placeholder="Enter password" required>
-    </div>
-
-    <button type="submit" class="btn btn-red" style="width:100%;">
-      Login
-    </button>
-
-  </form>
-
-  <p style="margin-top:1rem;font-size:.8rem;color:var(--grey);text-align:center;">
-    New donor? <a href="/register">Register here</a>
-  </p>
-
+  <p class="center small text-muted mt-2">🔒 After 5 wrong attempts, login is paused for 15 minutes to protect your account.</p>
 </div>
-
 {% endblock %}

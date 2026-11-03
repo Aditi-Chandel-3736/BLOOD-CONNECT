@@ -1,93 +1,215 @@
 {% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}{{ req.blood_group }} request — BloodConnect{% endblock %}
 {% block content %}
-<div style="background:linear-gradient(135deg,#1A202C,#2D3748);border-radius:12px;padding:1.5rem;color:#fff;margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem">
-  <div>
-    <h1 style="font-family:'Playfair Display',serif;font-size:1.4rem">🩸 {{req.patient_name}} — {{req.blood_group}}</h1>
-    <p style="color:#A0AEC0;font-size:.84rem;margin-top:4px">{{req.hospital_name}}, {{req.city}} &nbsp;|&nbsp; {{req.requested_at[:16]}}</p>
-  </div>
-  <span class="badge badge-{{req.status|lower}}" style="font-size:.82rem;padding:6px 14px">{{req.status}}</span>
-</div>
+{#  PRIVACY: this template only receives private data in the "private"
+    variable, which app.py fills ONLY for the requester, admins and
+    donors who accepted. Everyone else gets public fields in "req". #}
+{% set active = req.status in ACTIVE_STATUSES %}
 
-<div style="display:grid;grid-template-columns:2fr 1fr;gap:1.5rem">
-
-<div>
-  <!-- CONTACT BOX -->
-  <div style="background:#F0FFF4;border:2px solid #68D391;border-radius:10px;padding:1rem 1.2rem;margin-bottom:1.2rem">
-    <div style="font-size:.75rem;font-weight:700;color:#276749;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.3rem">📞 Donors Will Call This Number</div>
-    <div style="font-size:1.5rem;font-weight:800;color:#1A202C">{{req.contact_phone}}</div>
-    <div style="font-size:.82rem;color:#276749">{{req.contact_person}} — Contact Person</div>
-  </div>
-
-  <!-- REQUEST INFO -->
-  <div class="card" style="margin-bottom:1.2rem">
-    <div class="section-title">Request Details</div>
-    {% for label, value in [
-      ("Patient", req.patient_name),
-      ("Blood Group", req.blood_group),
-      ("Units Needed", req.units_needed),
-      ("Hospital", req.hospital_name),
-      ("City", req.city),
-      ("Urgency", req.urgency),
-      ("Donors Alerted", req.donors_alerted),
-      ("Donors Confirmed", req.donors_confirmed),
-      ("Actual Donations", req.donors_donated)
-    ] %}
-    <div style="display:flex;padding:8px 0;border-bottom:1px solid #E2E8F0;font-size:.86rem">
-      <span style="color:#718096;font-weight:600;width:140px;flex-shrink:0">{{label}}</span>
-      <span>{{value}}</span>
+<div class="card mb-3" {% if celebrate %}data-celebrate{% endif %}
+     style="background:linear-gradient(135deg,#1A202C,#3B1A1A);color:#fff;border:0">
+  <div class="row-between">
+    <div class="row" style="gap:1rem">
+      <span class="blood-pill lg" style="background:#fff">{{ req.blood_group }}</span>
+      <div>
+        <h1 style="font-family:var(--font-display);font-size:1.5rem">{{ req.hospital_name }}</h1>
+        <p style="color:#CBD5E0;font-size:.86rem;margin-top:2px">📍 {{ req.city }} · Requested {{ req.requested_at|localtime }}</p>
+      </div>
     </div>
-    {% endfor %}
+    <div class="row">{{ m.urgency_badge(req.urgency) }} {{ m.status_badge(req.status) }}</div>
   </div>
-
-  {% if req.status == 'Open' %}
-  <form method="POST" action="/request/{{req.id}}/close">
-    <button class="btn btn-outline btn-sm">Close Request</button>
-  </form>
-  {% endif %}
 </div>
 
-<!-- DONOR RESPONSES -->
-<div>
-  <div class="card">
-    <div class="section-title">Donor Responses</div>
-    {% if alerts %}
-      {% for a in alerts %}
-      <div style="display:flex;gap:10px;padding-bottom:1rem;margin-bottom:.5rem;border-bottom:1px solid #E2E8F0">
-        <div style="width:24px;height:24px;border-radius:50%;background:{{'#38A169' if a.donation_outcome=='Donated' else '#C53030' if a.donation_outcome=='Declined' else '#718096'}};color:#fff;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0">
-          {{'✓' if a.donation_outcome=='Donated' else '✗' if a.donation_outcome=='Declined' else '?'}}
+<div class="split">
+  <div class="stack">
+
+    {% if celebrate %}
+    <div class="card center">
+      <div class="thanks-icon"><span class="heartbeat">❤️</span></div>
+      <h2 style="font-family:var(--font-display);color:var(--green)">Thank you for stepping up!</h2>
+      <p class="text-muted">The requester has been notified. Please call them before going to the hospital.</p>
+    </div>
+    {% endif %}
+
+    <!-- ── CONTACT DETAILS (private) ─────────────── -->
+    {% if private %}
+      <section class="contact-box">
+        <div class="label">📞 {{ 'Requester contact' if access == 'accepted' else 'Contact details (private)' }}</div>
+        <a class="contact-phone" href="tel:+91{{ private.contact_phone }}">{{ private.contact_phone }}</a>
+        <div style="color:var(--green);font-size:.88rem">{{ private.contact_person }} — contact person</div>
+        <dl class="mt-2">
+          <div class="kv"><dt>Patient</dt><dd>{{ private.patient_name }}</dd></div>
+          {% if private.private_note %}<div class="kv"><dt>Note</dt><dd>{{ private.private_note }}</dd></div>{% endif %}
+        </dl>
+        {% if access == 'accepted' %}
+        <p class="small mt-1" style="color:var(--green)">Please call before going, to confirm blood is still needed. These details are shared with you only while you have accepted this active request.</p>
+        {% endif %}
+      </section>
+    {% else %}
+      <section class="locked">
+        <span class="lock-icon" aria-hidden="true">🔒</span>
+        <strong>Patient name and contact details are private</strong>
+        <p class="small mt-1">
+          {% if not active %}This request is {{ req.status|lower }}, so contact details are no longer shared.
+          {% elif is_donor and compatible %}They will be shown here only after you accept this request.
+          {% else %}They are shared only with donors who accept this request.{% endif %}
+        </p>
+      </section>
+    {% endif %}
+
+    <!-- ── DONOR ACTIONS ─────────────────────────── -->
+    {% if access in ('donor', 'accepted') and is_donor %}
+    <section class="card">
+      <div class="section-title">Your response</div>
+      {% if access == 'accepted' %}
+        <p class="mb-2">✅ <strong>You accepted this request.</strong> After your hospital visit, please report what happened.</p>
+        <div class="row">
+          <a href="{{ url_for('outcome', alert_id=my_alert.id) }}" class="btn btn-dark">📋 Report outcome</a>
+          <form method="POST" action="{{ url_for('withdraw', req_id=req.id) }}"
+                data-confirm="Withdraw from this request? The requester will be told, and you will lose access to the contact details.">
+            {{ csrf_field() }}<button type="submit" class="btn btn-danger-outline">Withdraw</button>
+          </form>
         </div>
-        <div style="flex:1">
-          <div style="font-weight:600;font-size:.86rem">{{a.donor_name}}</div>
-          <div style="font-size:.76rem;color:#718096">{{a.donor_area}} | {{a.donor_bg}}</div>
-          <div style="margin-top:4px">
-            <span class="badge badge-{{a.stage|lower}}" style="margin-right:4px">{{a.stage}}</span>
-            {% if a.donation_outcome != 'Pending' %}
-            <span class="badge badge-{{a.donation_outcome|lower}}">{{a.donation_outcome}}</span>
-            {% endif %}
-          </div>
-          {% if a.donation_outcome == 'Donated' or a.stage == 'Confirmed' %}
-          <div style="font-size:.82rem;color:#276749;font-weight:600;margin-top:3px">📱 {{a.donor_phone}}</div>
+      {% elif my_alert and my_alert.stage == 'Confirmed' %}
+        <p>You accepted this request. It is now {{ req.status|lower }}.
+          <a href="{{ url_for('outcome', alert_id=my_alert.id) }}">Report your outcome →</a></p>
+      {% elif my_alert and my_alert.donation_outcome in ('Donated', 'NotNeeded', 'Rejected') %}
+        <p>You reported: {{ m.response_badge(my_alert) }} — thank you!</p>
+      {% elif not active %}
+        <p class="text-muted">This request is no longer accepting donors.</p>
+      {% elif not compatible %}
+        <div class="notice info"><span class="notice-icon">ℹ️</span>
+          <span>Your blood group ({{ current_user.blood_group }}) is not red-cell compatible with {{ req.blood_group }}, so you cannot accept this request. Thank you for checking!</span></div>
+      {% elif slots_left == 0 %}
+        <div class="notice success"><span class="notice-icon">🙌</span><span>Enough donors have already accepted this request. Thank you for offering!</span></div>
+      {% else %}
+        {% if my_alert and my_alert.donation_outcome == 'Declined' %}<p class="small text-muted mb-1">You declined earlier — you can still accept if you are now able to help.</p>{% endif %}
+        {% if my_alert and my_alert.donation_outcome == 'Withdrawn' %}<p class="small text-muted mb-1">You withdrew earlier — you can accept again if you are able to help.</p>{% endif %}
+        <p class="mb-2">Can you donate for this patient? Accepting shares your <strong>name and phone number</strong> with the requester,
+          and shows you their contact details.</p>
+        {% if cooldown and not cooldown.eligible %}
+          <div class="notice warning mb-2"><span class="notice-icon">⚕️</span>
+            <span>Your last recorded donation was on {{ cooldown.last_donated_display }}. Please make sure the blood bank confirms you are eligible before accepting.</span></div>
+        {% endif %}
+        <div class="row">
+          <form method="POST" action="{{ url_for('accept', req_id=req.id) }}">
+            {{ csrf_field() }}<button type="submit" class="btn btn-green btn-lg" data-loading="Accepting…">✅ Accept request</button>
+          </form>
+          {% if not (my_alert and my_alert.donation_outcome == 'Declined') %}
+          <form method="POST" action="{{ url_for('decline', req_id=req.id) }}">
+            {{ csrf_field() }}<button type="submit" class="btn btn-outline btn-lg">Decline</button>
+          </form>
           {% endif %}
         </div>
+        <p class="small text-muted mt-1">Declining shares nothing. The request stays open for other donors.</p>
+      {% endif %}
+    </section>
+    {% elif access == 'donor' and not is_donor %}
+    <div class="notice info"><span class="notice-icon">ℹ️</span>
+      <span>Your account is a requester account. To accept requests, switch to a donor account in <a href="{{ url_for('edit_profile') }}">Edit Profile</a>.</span></div>
+    {% endif %}
+
+    <!-- ── REQUESTER / ADMIN: accepted donors ─────── -->
+    {% if access in ('owner', 'admin') %}
+    <section class="card">
+      <div class="section-title">🤝 Donors who accepted ({{ accepted_donors|length }}/{{ req.units_needed }})</div>
+      {% if accepted_donors %}
+        {% for d in accepted_donors %}
+        <div class="kv">
+          <dt><span class="blood-pill">{{ d.donor_bg }}</span></dt>
+          <dd><strong>{{ d.donor_name }}</strong> · <a href="tel:+91{{ d.donor_phone }}">📱 {{ d.donor_phone }}</a><br>
+            <span class="small text-muted">Accepted {{ d.confirmed_at|localtime }}</span>
+            {% if d.donation_outcome == 'Donated' %}<span class="badge badge-donated">Donated</span>{% endif %}</dd>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty"><span class="big heartbeat">❤️</span>No donor has accepted yet. You'll be notified as soon as one does.</div>
+      {% endif %}
+      <p class="small text-muted mt-1">
+        {{ summary.total }} donor(s) responded or were alerted · {{ summary.awaiting }} awaiting reply · {{ summary.declined }} declined · {{ summary.donated }} donated.
+        Donors who did not accept stay anonymous.</p>
+    </section>
+
+    {% if active %}
+    <section class="card">
+      <div class="section-title">Manage request</div>
+      <div class="row">
+        <a href="{{ url_for('edit_request', req_id=req.id) }}" class="btn btn-outline">✏️ Edit details</a>
+        {% if req.status == 'Donor Assigned' %}
+        <form method="POST" action="{{ url_for('change_request_status', req_id=req.id) }}">
+          {{ csrf_field() }}<input type="hidden" name="status" value="In Progress">
+          <button type="submit" class="btn btn-outline">🏥 Mark donation in progress</button>
+        </form>
+        {% endif %}
+        <form method="POST" action="{{ url_for('change_request_status', req_id=req.id) }}"
+              data-confirm="Mark this request as completed? Donors will no longer see the contact details.">
+          {{ csrf_field() }}<input type="hidden" name="status" value="Completed">
+          <button type="submit" class="btn btn-green">✅ Blood received — complete</button>
+        </form>
+        <form method="POST" action="{{ url_for('cancel_request', req_id=req.id) }}"
+              data-confirm="Cancel this request? Donors who accepted will be told they no longer need to come.">
+          {{ csrf_field() }}<button type="submit" class="btn btn-danger-outline">Cancel request</button>
+        </form>
       </div>
-      {% endfor %}
-    {% else %}
-    <p style="color:#718096;font-size:.84rem;text-align:center;padding:1rem">No donors alerted yet.</p>
+    </section>
+    {% endif %}
+    {% endif %}
+
+    <!-- ── ADMIN: every response ─────────────────── -->
+    {% if access == 'admin' and all_alerts %}
+    <section class="card">
+      <div class="section-title">🛡️ All donor responses (admin)</div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Donor</th><th>Group</th><th>Area</th><th>Response</th><th>Alerted</th></tr></thead>
+          <tbody>
+          {% for a in all_alerts %}
+            <tr><td><a href="{{ url_for('donor_profile', donor_id=a.donor_id) }}">{{ a.donor_name }}</a></td>
+              <td><span class="blood-pill">{{ a.donor_bg }}</span></td><td>{{ a.donor_area }}</td>
+              <td>{{ m.response_badge(a) }}</td><td class="small">{{ a.alerted_at|localtime }}</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
     {% endif %}
   </div>
 
-  <!-- 3-STAGE EXPLANATION -->
-  <div class="card" style="margin-top:1rem">
-    <div class="section-title">3-Stage Process</div>
-    <div style="font-size:.8rem;color:#4A5568;line-height:1.7">
-      <p><strong style="color:#718096">Stage 1 — Alerted</strong><br>Alert email sent to donor</p>
-      <p style="margin-top:.5rem"><strong style="color:#744210">Stage 2 — Confirmed</strong><br>Donor said YES, going to hospital</p>
-      <p style="margin-top:.5rem"><strong style="color:#276749">Stage 3 — Outcome</strong><br>Donor reports what happened. Only actual donation starts 56-day cooldown.</p>
-    </div>
-  </div>
+  <aside class="stack">
+    <section class="card">
+      <div class="section-title">Request details</div>
+      <dl>
+        <div class="kv"><dt>Blood group</dt><dd><span class="blood-pill">{{ req.blood_group }}</span></dd></div>
+        <div class="kv"><dt>Units needed</dt><dd>{{ req.units_needed }}</dd></div>
+        <div class="kv"><dt>Donors accepted</dt><dd>{{ req.accepted_count }}</dd></div>
+        <div class="kv"><dt>Hospital</dt><dd>{{ req.hospital_name }}</dd></div>
+        <div class="kv"><dt>City</dt><dd>{{ req.city }}</dd></div>
+        <div class="kv"><dt>Urgency</dt><dd>{{ m.urgency_badge(req.urgency) }}</dd></div>
+        {% if req.required_by %}<div class="kv"><dt>Needed by</dt><dd>{{ req.required_by|nicedate }}</dd></div>{% endif %}
+        {% if req.public_note %}<div class="kv"><dt>Description</dt><dd>{{ req.public_note }}</dd></div>{% endif %}
+      </dl>
+    </section>
 
-  <a href="/dashboard" class="btn btn-outline" style="width:100%;text-align:center;display:block;margin-top:1rem">← Dashboard</a>
-</div>
+    <section class="card">
+      <div class="section-title">📍 Status timeline</div>
+      <ol class="timeline">
+        {% for e in events %}
+        <li><strong>{{ e.status }}</strong>{% if e.note %} — {{ e.note }}{% endif %}<time>{{ e.created_at|localtime }}</time></li>
+        {% else %}
+        <li><strong>{{ req.status }}</strong><time>{{ req.requested_at|localtime }}</time></li>
+        {% endfor %}
+      </ol>
+    </section>
 
+    <section class="card small">
+      <div class="section-title">How it works</div>
+      <p><strong>1 · Alerted</strong> — compatible donors are notified with general details only.</p>
+      <p class="mt-1"><strong>2 · Accepted</strong> — a donor accepts; both sides see each other's contact details.</p>
+      <p class="mt-1"><strong>3 · Outcome</strong> — the donor reports what happened. Only an actual donation pauses their alerts.</p>
+    </section>
+
+    <a href="{{ url_for('dashboard') if is_admin else url_for('browse_requests') }}" class="btn btn-outline btn-block">← {{ 'Admin dashboard' if is_admin else 'All requests' }}</a>
+  </aside>
 </div>
 {% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}Edit profile — BloodConnect{% endblock %}
+{% block content %}
+<div class="narrow">
+  <div class="page-header">
+    <h1>✏️ Edit profile</h1>
+    <p>Keep your details up to date so the right people can reach you.</p>
+  </div>
+  <div class="card">
+    <form method="POST" action="{{ url_for('edit_profile') }}">
+      {{ csrf_field() }}
+      <div class="section-title">Account type</div>
+      <div class="choice-grid form-group" data-role-choice role="radiogroup" aria-label="Account type">
+        <label class="choice"><input type="radio" name="role" value="donor" {{ 'checked' if form.role == 'donor' }}>
+          <span><strong>🩸 Donor</strong><small>Receive alerts and accept requests.</small></span></label>
+        <label class="choice"><input type="radio" name="role" value="recipient" {{ 'checked' if form.role == 'recipient' }}>
+          <span><strong>🏥 Requester only</strong><small>Create requests, no donor alerts.</small></span></label>
+      </div>
+      {{ m.field_error(errors, 'role') }}
+
+      <div class="section-title mt-2">Details</div>
+      <div class="grid-2">
+        {{ m.text_input('name', 'Full name', form.name, errors, autocomplete='name') }}
+        {{ m.phone_input('phone', 'Mobile number', form.phone, errors) }}
+      </div>
+      <div class="grid-2" data-donor-only>
+        {{ m.blood_select('blood_group', form.blood_group, errors) }}
+        <div class="form-group">
+          <label class="form-label" for="age">Age <span class="req">*</span></label>
+          <input type="number" id="age" name="age" value="{{ form.age or '' }}" class="form-control{{ m.invalid(errors, 'age') }}"
+                 min="18" max="65" inputmode="numeric" required aria-describedby="age-error">
+          {{ m.field_error(errors, 'age') }}
+        </div>
+      </div>
+      <div class="grid-2">
+        {{ m.text_input('city', 'City', form.city, errors) }}
+        {{ m.text_input('area', 'Area / locality', form.area, errors) }}
+      </div>
+      <p class="small text-muted">Your email address is your login and cannot be changed here.</p>
+      <div class="actions">
+        <a href="{{ url_for('my_profile') }}" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-red" data-loading="Saving…">Save changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

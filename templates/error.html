@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — BloodConnect{% endblock %}
+{% block content %}
+<div class="narrow-sm">
+  <div class="card center mt-3">
+    <div class="thanks-icon red" aria-hidden="true">{{ '🔒' if code in (401, 403) else '⏳' if code == 429 else '🩸' }}</div>
+    <p class="eyebrow">Error {{ code }}</p>
+    <h1 style="font-family:var(--font-display);font-size:1.6rem;margin:.4rem 0">{{ title }}</h1>
+    <p class="text-muted">{{ text }}</p>
+    <div class="row mt-3" style="justify-content:center">
+      <a href="{{ url_for('index') }}" class="btn btn-red">Go to home page</a>
+      {% if not current_user and not is_admin %}<a href="{{ url_for('donor_login') }}" class="btn btn-outline">Log in</a>{% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

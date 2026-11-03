@@ -1,641 +1,103 @@
-
 {% extends "base.html" %}
+{% import "_macros.html" as m with context %}
 {% block content %}
 
-<style>
-  .bc-home {
-    --bc-red: #c62838;
-    --bc-dark: #202735;
-    --bc-muted: #687386;
-    --bc-border: #e8eaf0;
-    color: var(--bc-dark);
-  }
-
-  .bc-home * {
-    box-sizing: border-box;
-  }
-
-  .bc-hero {
-    position: relative;
-    overflow: hidden;
-    display: grid;
-    grid-template-columns: 1.25fr .75fr;
-    align-items: center;
-    gap: 28px;
-    padding: clamp(28px, 5vw, 60px);
-    border-radius: 24px;
-    background: linear-gradient(130deg, #fff1f2 0%, #fff 65%, #ffe3e6 100%);
-    border: 1px solid #f8dfe2;
-    margin-bottom: 28px;
-  }
-
-  .bc-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: #fff;
-    color: var(--bc-red);
-    border: 1px solid #f4c9ce;
-    padding: 8px 13px;
-    border-radius: 30px;
-    font-size: .75rem;
-    font-weight: 800;
-    letter-spacing: .8px;
-    text-transform: uppercase;
-  }
-
-  .bc-hero h1 {
-    font-size: clamp(2.1rem, 4.5vw, 3.65rem);
-    line-height: 1.12;
-    letter-spacing: -1.8px;
-    margin: 22px 0 16px;
-    color: #202735;
-  }
-
-  .bc-hero h1 span {
-    color: var(--bc-red);
-  }
-
-  .bc-hero-copy {
-    color: #687386;
-    max-width: 520px;
-    line-height: 1.8;
-    font-size: .97rem;
-    margin-bottom: 25px;
-  }
-
-  .bc-actions {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-
-  .bc-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 9px;
-    padding: 13px 19px;
-    border-radius: 10px;
-    text-decoration: none;
-    font-size: .88rem;
-    font-weight: 750;
-    transition: transform .2s, box-shadow .2s;
-  }
-
-  .bc-button:hover {
-    transform: translateY(-2px);
-  }
-
-  .bc-button-primary {
-    background: var(--bc-red);
-    color: #fff;
-    box-shadow: 0 7px 18px #c6283826;
-  }
-
-  .bc-button-primary:hover {
-    background: #a91f2e;
-    color: #fff;
-  }
-
-  .bc-button-secondary {
-    background: #fff;
-    border: 1px solid #e6bfc4;
-    color: #a91f2e;
-  }
-
-  .bc-button-secondary:hover {
-    background: #fff8f8;
-    color: #a91f2e;
-  }
-
-  .bc-hero-art {
-    min-height: 250px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-  }
-
-  .bc-drop-circle {
-    width: clamp(170px, 23vw, 250px);
-    height: clamp(170px, 23vw, 250px);
-    border-radius: 50%;
-    background: linear-gradient(145deg, #f9cbd0, #ffe9eb);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: clamp(6rem, 12vw, 9rem);
-    box-shadow: 0 20px 55px #b91c2c15;
-  }
-
-  .bc-float {
-    position: absolute;
-    background: #fff;
-    border: 1px solid #f2e3e5;
-    border-radius: 12px;
-    padding: 12px 15px;
-    box-shadow: 0 8px 28px #20273512;
-    font-size: .8rem;
-    font-weight: 750;
-  }
-
-  .bc-float-one {
-    top: 12%;
-    right: 0;
-  }
-
-  .bc-float-two {
-    bottom: 9%;
-    left: 0;
-  }
-
-  .bc-float span {
-    display: block;
-    color: var(--bc-muted);
-    font-size: .7rem;
-    font-weight: 500;
-    margin-top: 4px;
-  }
-
-  .bc-section {
-    margin: 34px 0;
-  }
-
-  .bc-section-heading {
-    display: flex;
-    align-items: end;
-    justify-content: space-between;
-    gap: 15px;
-    margin-bottom: 17px;
-  }
-
-  .bc-section-heading h2 {
-    font-size: 1.4rem;
-    letter-spacing: -.5px;
-    margin: 0 0 6px;
-  }
-
-  .bc-section-heading p {
-    color: var(--bc-muted);
-    font-size: .86rem;
-    line-height: 1.6;
-    margin: 0;
-  }
-
-  .bc-stats {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 15px;
-  }
-
-  .bc-stat {
-    padding: 21px;
-    background: #fff;
-    border: 1px solid var(--bc-border);
-    border-radius: 16px;
-    box-shadow: 0 4px 15px #20273506;
-  }
-
-  .bc-stat-icon {
-    width: 42px;
-    height: 42px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-    background: #fff0f1;
-    font-size: 1.25rem;
-    margin-bottom: 15px;
-  }
-
-  .bc-stat-number {
-    color: var(--bc-dark);
-    font-size: 1.85rem;
-    line-height: 1.2;
-    font-weight: 800;
-    overflow-wrap: anywhere;
-  }
-
-  .bc-stat-label {
-    color: var(--bc-muted);
-    font-size: .79rem;
-    margin-top: 6px;
-    line-height: 1.5;
-  }
-
-  .bc-steps {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 15px;
-  }
-
-  .bc-step {
-    background: #fff;
-    border: 1px solid var(--bc-border);
-    border-radius: 16px;
-    padding: 21px;
-  }
-
-  .bc-step-number {
-    width: 38px;
-    height: 38px;
-    border-radius: 12px;
-    background: #fff0f1;
-    color: var(--bc-red);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    margin-bottom: 17px;
-  }
-
-  .bc-step h3 {
-    font-size: .95rem;
-    margin: 0 0 9px;
-  }
-
-  .bc-step p {
-    color: var(--bc-muted);
-    font-size: .81rem;
-    line-height: 1.7;
-    margin: 0;
-  }
-
-  .bc-request-list {
-    display: grid;
-    gap: 12px;
-  }
-
-  .bc-request {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 17px;
-    background: #fff;
-    border: 1px solid var(--bc-border);
-    border-radius: 14px;
-  }
-
-  .bc-blood-group {
-    flex: 0 0 58px;
-    height: 58px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #fff0f1;
-    color: var(--bc-red);
-    border-radius: 12px;
-    font-size: 1rem;
-    font-weight: 850;
-  }
-
-  .bc-request-info {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .bc-request-info h3 {
-    font-size: .91rem;
-    margin: 0 0 7px;
-    overflow-wrap: anywhere;
-  }
-
-  .bc-request-info p {
-    color: var(--bc-muted);
-    font-size: .78rem;
-    line-height: 1.6;
-    margin: 0;
-    overflow-wrap: anywhere;
-  }
-
-  .bc-request .badge {
-    flex-shrink: 0;
-  }
-
-  .bc-empty {
-    text-align: center;
-    padding: 30px 20px;
-    border: 1px dashed #d8dce5;
-    border-radius: 15px;
-    color: var(--bc-muted);
-    background: #fff;
-  }
-
-  .bc-empty-icon {
-    font-size: 2rem;
-    margin-bottom: 10px;
-  }
-
-  .bc-empty h3 {
-    color: var(--bc-dark);
-    font-size: 1rem;
-    margin-bottom: 7px;
-  }
-
-  .bc-empty p {
-    font-size: .84rem;
-    line-height: 1.6;
-    margin: 0;
-  }
-
-  .bc-bottom-cta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-    padding: 28px;
-    border-radius: 18px;
-    background: #242b39;
-    color: #fff;
-    margin-top: 36px;
-  }
-
-  .bc-bottom-cta h2 {
-    font-size: 1.3rem;
-    margin: 0 0 8px;
-  }
-
-  .bc-bottom-cta p {
-    color: #c2c9d5;
-    font-size: .84rem;
-    line-height: 1.6;
-    margin: 0;
-  }
-
-  .bc-bottom-cta .bc-button {
-    flex-shrink: 0;
-  }
-
-  @media (max-width: 800px) {
-    .bc-hero {
-      grid-template-columns: 1fr;
-    }
-
-    .bc-hero-art {
-      min-height: 210px;
-    }
-
-    .bc-stats,
-    .bc-steps {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .bc-float-one {
-      right: 5%;
-    }
-
-    .bc-float-two {
-      left: 5%;
-    }
-  }
-
-  @media (max-width: 520px) {
-    .bc-hero {
-      padding: 25px 20px;
-      border-radius: 17px;
-    }
-
-    .bc-hero h1 {
-      letter-spacing: -.8px;
-    }
-
-    .bc-actions {
-      flex-direction: column;
-    }
-
-    .bc-button {
-      width: 100%;
-    }
-
-    .bc-stats {
-      gap: 10px;
-    }
-
-    .bc-stat {
-      padding: 15px;
-    }
-
-    .bc-stat-number {
-      font-size: 1.5rem;
-    }
-
-    .bc-steps {
-      grid-template-columns: 1fr;
-    }
-
-    .bc-section-heading {
-      align-items: start;
-      flex-direction: column;
-    }
-
-    .bc-request {
-      flex-wrap: wrap;
-      padding: 13px;
-    }
-
-    .bc-request-info {
-      flex-basis: calc(100% - 75px);
-    }
-
-    .bc-request .badge {
-      margin-left: 73px;
-    }
-
-    .bc-bottom-cta {
-      align-items: stretch;
-      flex-direction: column;
-      padding: 23px;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .bc-button {
-      transition: none;
-    }
-
-    .bc-button:hover {
-      transform: none;
-    }
-  }
-</style>
-
-<div class="bc-home">
-
-  <!-- HERO SECTION -->
-  <section class="bc-hero">
-    <div>
-      <div class="bc-eyebrow">
-        <span aria-hidden="true">●</span>
-        Every Donor Matters
-      </div>
-
-      <h1>
-        Be someone's<br>
-        <span>reason to hope.</span>
-      </h1>
-
-      <p class="bc-hero-copy">
-        Connect with blood donors when it matters most.
-        Register as a donor, submit a blood request, and help
-        bring people together through the power of giving.
-      </p>
-
-      <div class="bc-actions">
-        <a href="/request-blood" class="bc-button bc-button-primary">
-          🚨 Request Blood
-        </a>
-
-        <a href="/register" class="bc-button bc-button-secondary">
-          🩸 Become a Donor
-        </a>
-      </div>
+<section class="hero">
+  <div>
+    <span class="hero-tag"><span class="live-dot" aria-hidden="true"></span>Emergency Blood Alert System</span>
+    <h1>Find blood donors<br><em>in minutes, not hours</em></h1>
+    <p>BloodConnect alerts compatible, available donors in your city the moment you need blood —
+       and keeps the patient's contact details private until a donor accepts.</p>
+    <div class="row">
+      <a href="{{ url_for('request_blood') }}" class="btn btn-red btn-lg">🚨 I Need Blood</a>
+      {% if current_user %}
+      <a href="{{ url_for('browse_requests') }}" class="btn btn-outline btn-lg">🩸 See requests I can help</a>
+      {% else %}
+      <a href="{{ url_for('register') }}" class="btn btn-outline btn-lg">🩸 I Want to Donate</a>
+      {% endif %}
     </div>
+  </div>
+  <div class="hero-art" aria-hidden="true">
+    <span class="ripple"></span><span class="ripple r2"></span>
+    <svg class="hero-drop" viewBox="0 0 120 150">
+      <defs>
+        <linearGradient id="dropGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#FC8181"/><stop offset="1" stop-color="#9B2C2C"/>
+        </linearGradient>
+      </defs>
+      <path d="M60 4C60 4 12 66 12 98a48 48 0 0 0 96 0C108 66 60 4 60 4z" fill="url(#dropGrad)"/>
+      <path class="shine" d="M38 96c0-14 8-30 15-40-2 14-6 26-6 40a5 5 0 0 1-9 0z" fill="#fff" opacity=".6"/>
+    </svg>
+    <svg class="hero-ecg" viewBox="0 0 400 60" preserveAspectRatio="none">
+      <path d="M0 35 H120 L135 35 L145 10 L158 55 L170 22 L180 35 H260 L272 35 L280 18 L290 48 L298 35 H400"/>
+    </svg>
+  </div>
+</section>
 
-    <div class="bc-hero-art" aria-hidden="true">
-      <div class="bc-drop-circle">🩸</div>
+<!-- LIVE STATISTICS (real numbers from the database) -->
+<section class="grid-4 keep-2 mb-3" aria-label="Live statistics">
+  <div class="stat-card reveal"><div class="stat-num" data-count-to="{{ stats.active_donors }}">{{ stats.active_donors }}</div><div class="stat-label">Available donors</div></div>
+  <div class="stat-card reveal"><div class="stat-num" data-count-to="{{ stats.open_requests }}">{{ stats.open_requests }}</div><div class="stat-label">Active requests</div></div>
+  <div class="stat-card reveal"><div class="stat-num" data-count-to="{{ stats.fulfilled }}">{{ stats.fulfilled }}</div><div class="stat-label">Requests completed</div></div>
+  <div class="stat-card reveal"><div class="stat-num" data-count-to="{{ stats.total_donations }}">{{ stats.total_donations }}</div><div class="stat-label">Donations reported</div></div>
+</section>
 
-      <div class="bc-float bc-float-one">
-        ❤️ Give the gift of life
-        <span>One donation can make a difference</span>
-      </div>
+<section class="card mb-3 reveal">
+  <div class="section-title">How it works — 4 simple steps</div>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-title">Register</div><div class="step-desc">Create a free donor or requester account with a verified 10-digit mobile number.</div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-title">Request</div><div class="step-desc">The patient's family posts a request. Only general details are shown publicly.</div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-title">Alert</div><div class="step-desc">Compatible, available donors in the same city are notified instantly.</div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-title">Connect</div><div class="step-desc">When a donor accepts, both sides see each other's contact details to coordinate.</div></div>
+  </div>
+</section>
 
-      <div class="bc-float bc-float-two">
-        🤝 People helping people
-        <span>Connecting donors and requests</span>
-      </div>
+<div class="split mb-3">
+  <section class="card reveal">
+    <div class="section-title">
+      <span><span class="heartbeat" aria-hidden="true">❤️</span> Live active requests</span>
+      <a href="{{ url_for('browse_requests') }}">View all →</a>
     </div>
-  </section>
-
-  <!-- LIVE STATISTICS -->
-  <section class="bc-section">
-    <div class="bc-section-heading">
-      <div>
-        <h2>BloodConnect at a glance</h2>
-        <p>A snapshot of the activity recorded in our system.</p>
-      </div>
-    </div>
-
-    <div class="bc-stats">
-      <div class="bc-stat">
-        <div class="bc-stat-icon" aria-hidden="true">🩸</div>
-        <div class="bc-stat-number">{{ stats.active_donors }}</div>
-        <div class="bc-stat-label">Active Donors</div>
-      </div>
-
-      <div class="bc-stat">
-        <div class="bc-stat-icon" aria-hidden="true">🚨</div>
-        <div class="bc-stat-number">{{ stats.open_requests }}</div>
-        <div class="bc-stat-label">Open Blood Requests</div>
-      </div>
-
-      <div class="bc-stat">
-        <div class="bc-stat-icon" aria-hidden="true">🤝</div>
-        <div class="bc-stat-number">{{ stats.fulfilled }}</div>
-        <div class="bc-stat-label">Requests Fulfilled</div>
-      </div>
-
-      <div class="bc-stat">
-        <div class="bc-stat-icon" aria-hidden="true">💝</div>
-        <div class="bc-stat-number">{{ stats.total_donations }}</div>
-        <div class="bc-stat-label">Recorded Donations</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- HOW IT WORKS -->
-  <section class="bc-section">
-    <div class="bc-section-heading">
-      <div>
-        <h2>How BloodConnect works</h2>
-        <p>Four simple steps to connect people who need help with potential donors.</p>
-      </div>
-    </div>
-
-    <div class="bc-steps">
-      <article class="bc-step">
-        <div class="bc-step-number">01</div>
-        <h3>Register as a donor</h3>
-        <p>Create a profile with your blood group and location so matching requests can find you.</p>
-      </article>
-
-      <article class="bc-step">
-        <div class="bc-step-number">02</div>
-        <h3>Submit a request</h3>
-        <p>Provide the requested blood group, hospital, city, and contact details.</p>
-      </article>
-
-      <article class="bc-step">
-        <div class="bc-step-number">03</div>
-        <h3>Notify potential donors</h3>
-        <p>The system identifies matching available donors and attempts to send email alerts.</p>
-      </article>
-
-      <article class="bc-step">
-        <div class="bc-step-number">04</div>
-        <h3>Confirm the outcome</h3>
-        <p>Donors can respond to an alert and report the outcome of their hospital visit.</p>
-      </article>
-    </div>
-  </section>
-
-  <!-- OPEN REQUEST FEED -->
-  <section class="bc-section">
-    <div class="bc-section-heading">
-      <div>
-        <h2>Open blood requests</h2>
-        <p>Recent requests currently marked as open in the system.</p>
-      </div>
-
-      <a href="/request-blood" class="bc-button bc-button-secondary">
-        + New Request
-      </a>
-    </div>
-
     {% if feed %}
-      <div class="bc-request-list">
-        {% for r in feed %}
-          <article class="bc-request">
-            <div class="bc-blood-group">
-              {{ r.blood_group }}
-            </div>
-
-            <div class="bc-request-info">
-              <h3>{{ r.hospital_name }} — {{ r.city }}</h3>
-              <p>
-                {{ r.units_needed }} unit(s)
-                &nbsp;·&nbsp;
-                {{ r.requested_at[:10] }}
-              </p>
-            </div>
-
-            <span class="badge badge-{{ r.urgency|lower }}">
-              {{ r.urgency }}
-            </span>
-          </article>
-        {% endfor %}
-      </div>
+      <div class="req-list">{% for r in feed %}{{ m.request_card(r, show_status=False) }}{% endfor %}</div>
+      <p class="small text-muted mt-2">🔒 Patient names and phone numbers are never shown here. Donors see them only after accepting a request.</p>
     {% else %}
-      <div class="bc-empty">
-        <div class="bc-empty-icon" aria-hidden="true">💗</div>
-        <h3>No open requests right now</h3>
-        <p>There are no requests marked as open in the system at this time.</p>
-      </div>
+      <div class="empty"><span class="big">🩸</span>No active requests right now.</div>
     {% endif %}
   </section>
 
-  <!-- BOTTOM CALL TO ACTION -->
-  <section class="bc-bottom-cta">
-    <div>
-      <h2>Your next step could help someone.</h2>
-      <p>Join the donor network or create a blood request to get started.</p>
+  <section class="card reveal" id="compatibility" data-compat='{{ {"donate_to": donate_to, "receive_from": receive_from}|tojson }}'>
+    <div class="section-title">Blood group compatibility</div>
+    <p class="small text-muted mb-2">Pick a blood group to see red-cell compatibility.</p>
+    <div class="compat-picker" role="group" aria-label="Choose a blood group">
+      {% for bg in BLOOD_GROUPS %}<button type="button" aria-pressed="false">{{ bg }}</button>{% endfor %}
     </div>
-
-    <a href="/register" class="bc-button bc-button-primary">
-      Join as a Donor →
-    </a>
+    <p class="form-label"><span data-selected>O+</span> can give red cells to:</p>
+    <div class="compat-groups mb-2" data-give aria-live="polite"></div>
+    <p class="form-label"><span data-selected>O+</span> can receive red cells from:</p>
+    <div class="compat-groups" data-get aria-live="polite"></div>
+    <p class="small text-muted mt-2">⚕️ Standard ABO/RhD red cell rules. Plasma and platelet rules are different, and the hospital
+       blood bank always does its own cross-match before any transfusion.</p>
   </section>
-
 </div>
+
+<!-- DID YOU KNOW? — every fact links to its source -->
+<section class="facts reveal" data-facts aria-roledescription="carousel" aria-label="Blood donation facts">
+  <span class="eyebrow">💡 Did you know?</span>
+  <h2>Blood donation facts</h2>
+  <div class="fact-stage" aria-live="polite">
+    {% for f in facts %}
+    <div class="fact{{ ' active' if loop.first }}" role="group" aria-roledescription="slide" aria-label="Fact {{ loop.index }} of {{ facts|length }}">
+      <p>{{ f.text }}</p>
+      <cite>Source: <a href="{{ f.url }}" {% if f.url.startswith('http') %}target="_blank" rel="noopener noreferrer"{% endif %}>{{ f.source }}</a></cite>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="fact-nav">
+    <div class="fact-dots"></div>
+    <button type="button" class="fact-btn" data-prev aria-label="Previous fact">‹</button>
+    <button type="button" class="fact-btn" data-next aria-label="Next fact">›</button>
+  </div>
+</section>
 
 {% endblock %}

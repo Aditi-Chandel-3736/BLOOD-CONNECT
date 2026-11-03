@@ -1,26 +1,19 @@
 {% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}Admin login — BloodConnect{% endblock %}
 {% block content %}
-
-<div class="card" style="max-width:420px;margin:2rem auto;">
-  
-  <div class="page-header">
-    <h1>Admin Access</h1>
-    <p>Restricted system control panel</p>
-  </div>
-
-  <form method="POST">
-    
-    <div class="form-group">
-      <label class="form-label">Password</label>
-      <input type="password" name="password" class="form-control" placeholder="Enter admin password" required>
+<div class="narrow-sm">
+  <div class="card mt-2">
+    <div class="page-header center">
+      <div class="thanks-icon" style="background:#EDF2F7;border-color:#CBD5E0" aria-hidden="true">🛡️</div>
+      <h1>Admin access</h1>
+      <p>Restricted system control panel</p>
     </div>
-
-    <button type="submit" class="btn btn-dark" style="width:100%;">
-      Login as Admin
-    </button>
-
-  </form>
-
+    <form method="POST" action="{{ url_for('admin_login', next=request.args.get('next')) }}">
+      {{ csrf_field() }}
+      {{ m.password_input('password', 'Admin password') }}
+      <button type="submit" class="btn btn-dark btn-block" data-loading="Checking…">Log in as admin</button>
+    </form>
+  </div>
 </div>
-
 {% endblock %}

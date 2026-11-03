@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Edit request — BloodConnect{% endblock %}
+{% block content %}
+<div class="narrow">
+  <div class="page-header">
+    <h1>✏️ Edit request #{{ req.id }}</h1>
+    <p>Patient, blood group and city cannot be changed after donors were alerted. Create a new request if those are wrong.</p>
+  </div>
+  <div class="card">
+    <form method="POST" action="{{ url_for('edit_request', req_id=req.id) }}">
+      {{ csrf_field() }}
+      {% set locked = True %}
+      {% include "_request_fields.html" %}
+      <div class="actions">
+        <a href="{{ url_for('request_detail', req_id=req.id) }}" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-red" data-loading="Saving…">Save changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
