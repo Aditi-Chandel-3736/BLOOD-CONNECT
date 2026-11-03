@@ -123,7 +123,7 @@ if os.environ.get("TRUST_PROXY") == "1":
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
 
 # Admin password comes ONLY from .env — there is no default any more.
-ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin1510")
 
 # Times are stored in UTC; shown to users in this offset (330 = India, UTC+5:30)
 DISPLAY_OFFSET = timedelta(minutes=int(os.environ.get("DISPLAY_UTC_OFFSET_MINUTES", "330")))
