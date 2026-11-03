@@ -1,70 +1,641 @@
+
 {% extends "base.html" %}
 {% block content %}
+
 <style>
-.hero{background:linear-gradient(135deg,#1A202C,#2D3748);border-radius:16px;padding:3rem 2.5rem;color:#fff;margin-bottom:2rem;position:relative;overflow:hidden}
-.hero::after{content:"🩸";position:absolute;right:2rem;top:50%;transform:translateY(-50%);font-size:8rem;opacity:.05}
-.hero-tag{display:inline-block;background:rgba(197,48,48,.2);color:#FC8181;border:1px solid rgba(197,48,48,.4);padding:3px 12px;border-radius:20px;font-size:.73rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:1rem}
-.hero h1{font-family:'Playfair Display',serif;font-size:2.3rem;line-height:1.2;margin-bottom:.8rem}
-.hero h1 span{color:#FC8181}
-.hero p{color:#A0AEC0;font-size:.93rem;max-width:500px;line-height:1.7;margin-bottom:1.8rem}
-.hero-btns{display:flex;gap:12px;flex-wrap:wrap}
-.btn-hero-red{background:#C53030;color:#fff;padding:12px 26px;border-radius:8px;font-weight:700;font-size:.93rem;text-decoration:none;transition:all .2s}
-.btn-hero-red:hover{background:#9B2C2C;transform:translateY(-1px)}
-.btn-hero-out{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.3);padding:12px 26px;border-radius:8px;font-weight:600;font-size:.93rem;text-decoration:none;transition:all .2s}
-.btn-hero-out:hover{border-color:#FC8181;color:#FC8181}
-.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:1rem}
-.step{text-align:center;padding:1.2rem 1rem;background:#fff;border-radius:10px;border:1px solid #E2E8F0}
-.step-num{width:30px;height:30px;background:#C53030;color:#fff;border-radius:50%;font-weight:700;font-size:.87rem;line-height:30px;margin:0 auto .5rem}
-.step-title{font-weight:600;font-size:.87rem;color:#1A202C;margin-bottom:.3rem}
-.step-desc{font-size:.76rem;color:#718096;line-height:1.4}
-.feed-card{background:#fff;border-radius:10px;border:1px solid #E2E8F0;padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;margin-bottom:.7rem}
-.feed-bg{font-size:1.4rem;font-weight:800;color:#C53030;min-width:44px;text-align:center}
-.feed-info{flex:1}
-.feed-info strong{font-size:.88rem;display:block}
-.feed-info span{font-size:.76rem;color:#718096}
-@media(max-width:640px){.steps{grid-template-columns:1fr 1fr}.hero h1{font-size:1.6rem}}
+  .bc-home {
+    --bc-red: #c62838;
+    --bc-dark: #202735;
+    --bc-muted: #687386;
+    --bc-border: #e8eaf0;
+    color: var(--bc-dark);
+  }
+
+  .bc-home * {
+    box-sizing: border-box;
+  }
+
+  .bc-hero {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1.25fr .75fr;
+    align-items: center;
+    gap: 28px;
+    padding: clamp(28px, 5vw, 60px);
+    border-radius: 24px;
+    background: linear-gradient(130deg, #fff1f2 0%, #fff 65%, #ffe3e6 100%);
+    border: 1px solid #f8dfe2;
+    margin-bottom: 28px;
+  }
+
+  .bc-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    color: var(--bc-red);
+    border: 1px solid #f4c9ce;
+    padding: 8px 13px;
+    border-radius: 30px;
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+  }
+
+  .bc-hero h1 {
+    font-size: clamp(2.1rem, 4.5vw, 3.65rem);
+    line-height: 1.12;
+    letter-spacing: -1.8px;
+    margin: 22px 0 16px;
+    color: #202735;
+  }
+
+  .bc-hero h1 span {
+    color: var(--bc-red);
+  }
+
+  .bc-hero-copy {
+    color: #687386;
+    max-width: 520px;
+    line-height: 1.8;
+    font-size: .97rem;
+    margin-bottom: 25px;
+  }
+
+  .bc-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .bc-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 13px 19px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: .88rem;
+    font-weight: 750;
+    transition: transform .2s, box-shadow .2s;
+  }
+
+  .bc-button:hover {
+    transform: translateY(-2px);
+  }
+
+  .bc-button-primary {
+    background: var(--bc-red);
+    color: #fff;
+    box-shadow: 0 7px 18px #c6283826;
+  }
+
+  .bc-button-primary:hover {
+    background: #a91f2e;
+    color: #fff;
+  }
+
+  .bc-button-secondary {
+    background: #fff;
+    border: 1px solid #e6bfc4;
+    color: #a91f2e;
+  }
+
+  .bc-button-secondary:hover {
+    background: #fff8f8;
+    color: #a91f2e;
+  }
+
+  .bc-hero-art {
+    min-height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .bc-drop-circle {
+    width: clamp(170px, 23vw, 250px);
+    height: clamp(170px, 23vw, 250px);
+    border-radius: 50%;
+    background: linear-gradient(145deg, #f9cbd0, #ffe9eb);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(6rem, 12vw, 9rem);
+    box-shadow: 0 20px 55px #b91c2c15;
+  }
+
+  .bc-float {
+    position: absolute;
+    background: #fff;
+    border: 1px solid #f2e3e5;
+    border-radius: 12px;
+    padding: 12px 15px;
+    box-shadow: 0 8px 28px #20273512;
+    font-size: .8rem;
+    font-weight: 750;
+  }
+
+  .bc-float-one {
+    top: 12%;
+    right: 0;
+  }
+
+  .bc-float-two {
+    bottom: 9%;
+    left: 0;
+  }
+
+  .bc-float span {
+    display: block;
+    color: var(--bc-muted);
+    font-size: .7rem;
+    font-weight: 500;
+    margin-top: 4px;
+  }
+
+  .bc-section {
+    margin: 34px 0;
+  }
+
+  .bc-section-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 17px;
+  }
+
+  .bc-section-heading h2 {
+    font-size: 1.4rem;
+    letter-spacing: -.5px;
+    margin: 0 0 6px;
+  }
+
+  .bc-section-heading p {
+    color: var(--bc-muted);
+    font-size: .86rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .bc-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 15px;
+  }
+
+  .bc-stat {
+    padding: 21px;
+    background: #fff;
+    border: 1px solid var(--bc-border);
+    border-radius: 16px;
+    box-shadow: 0 4px 15px #20273506;
+  }
+
+  .bc-stat-icon {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: #fff0f1;
+    font-size: 1.25rem;
+    margin-bottom: 15px;
+  }
+
+  .bc-stat-number {
+    color: var(--bc-dark);
+    font-size: 1.85rem;
+    line-height: 1.2;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+  }
+
+  .bc-stat-label {
+    color: var(--bc-muted);
+    font-size: .79rem;
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  .bc-steps {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 15px;
+  }
+
+  .bc-step {
+    background: #fff;
+    border: 1px solid var(--bc-border);
+    border-radius: 16px;
+    padding: 21px;
+  }
+
+  .bc-step-number {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: #fff0f1;
+    color: var(--bc-red);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    margin-bottom: 17px;
+  }
+
+  .bc-step h3 {
+    font-size: .95rem;
+    margin: 0 0 9px;
+  }
+
+  .bc-step p {
+    color: var(--bc-muted);
+    font-size: .81rem;
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  .bc-request-list {
+    display: grid;
+    gap: 12px;
+  }
+
+  .bc-request {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 17px;
+    background: #fff;
+    border: 1px solid var(--bc-border);
+    border-radius: 14px;
+  }
+
+  .bc-blood-group {
+    flex: 0 0 58px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff0f1;
+    color: var(--bc-red);
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 850;
+  }
+
+  .bc-request-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .bc-request-info h3 {
+    font-size: .91rem;
+    margin: 0 0 7px;
+    overflow-wrap: anywhere;
+  }
+
+  .bc-request-info p {
+    color: var(--bc-muted);
+    font-size: .78rem;
+    line-height: 1.6;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .bc-request .badge {
+    flex-shrink: 0;
+  }
+
+  .bc-empty {
+    text-align: center;
+    padding: 30px 20px;
+    border: 1px dashed #d8dce5;
+    border-radius: 15px;
+    color: var(--bc-muted);
+    background: #fff;
+  }
+
+  .bc-empty-icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+  }
+
+  .bc-empty h3 {
+    color: var(--bc-dark);
+    font-size: 1rem;
+    margin-bottom: 7px;
+  }
+
+  .bc-empty p {
+    font-size: .84rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .bc-bottom-cta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 28px;
+    border-radius: 18px;
+    background: #242b39;
+    color: #fff;
+    margin-top: 36px;
+  }
+
+  .bc-bottom-cta h2 {
+    font-size: 1.3rem;
+    margin: 0 0 8px;
+  }
+
+  .bc-bottom-cta p {
+    color: #c2c9d5;
+    font-size: .84rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .bc-bottom-cta .bc-button {
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 800px) {
+    .bc-hero {
+      grid-template-columns: 1fr;
+    }
+
+    .bc-hero-art {
+      min-height: 210px;
+    }
+
+    .bc-stats,
+    .bc-steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .bc-float-one {
+      right: 5%;
+    }
+
+    .bc-float-two {
+      left: 5%;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .bc-hero {
+      padding: 25px 20px;
+      border-radius: 17px;
+    }
+
+    .bc-hero h1 {
+      letter-spacing: -.8px;
+    }
+
+    .bc-actions {
+      flex-direction: column;
+    }
+
+    .bc-button {
+      width: 100%;
+    }
+
+    .bc-stats {
+      gap: 10px;
+    }
+
+    .bc-stat {
+      padding: 15px;
+    }
+
+    .bc-stat-number {
+      font-size: 1.5rem;
+    }
+
+    .bc-steps {
+      grid-template-columns: 1fr;
+    }
+
+    .bc-section-heading {
+      align-items: start;
+      flex-direction: column;
+    }
+
+    .bc-request {
+      flex-wrap: wrap;
+      padding: 13px;
+    }
+
+    .bc-request-info {
+      flex-basis: calc(100% - 75px);
+    }
+
+    .bc-request .badge {
+      margin-left: 73px;
+    }
+
+    .bc-bottom-cta {
+      align-items: stretch;
+      flex-direction: column;
+      padding: 23px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bc-button {
+      transition: none;
+    }
+
+    .bc-button:hover {
+      transform: none;
+    }
+  }
 </style>
 
-<div class="hero">
-  <div class="hero-tag">Emergency Blood Alert System</div>
-  <h1>Find Blood Donors<br><span>In Minutes, Not Hours</span></h1>
-  <p>BloodConnect automatically finds matching donors in your city and sends instant alerts — with direct contact so patients get help before it is too late.</p>
-  <div class="hero-btns">
-    <a href="/request-blood" class="btn-hero-red">🚨 I Need Blood</a>
-    <a href="/register"      class="btn-hero-out">🩸 I Want to Donate</a>
-  </div>
-</div>
+<div class="bc-home">
 
-<div class="grid-4" style="margin-bottom:2rem">
-  <div class="stat-card"><div class="stat-num">{{stats.active_donors}}</div><div class="stat-label">Active Donors</div></div>
-  <div class="stat-card"><div class="stat-num">{{stats.open_requests}}</div><div class="stat-label">Open Requests</div></div>
-  <div class="stat-card"><div class="stat-num">{{stats.fulfilled}}</div><div class="stat-label">Lives Helped</div></div>
-  <div class="stat-card"><div class="stat-num">{{stats.total_donations}}</div><div class="stat-label">Confirmed Donations</div></div>
-</div>
+  <!-- HERO SECTION -->
+  <section class="bc-hero">
+    <div>
+      <div class="bc-eyebrow">
+        <span aria-hidden="true">●</span>
+        Every Donor Matters
+      </div>
 
-<div class="card" style="margin-bottom:2rem">
-  <div class="section-title">How It Works — 4 Simple Steps</div>
-  <div class="steps">
-    <div class="step"><div class="step-num">1</div><div class="step-title">Register</div><div class="step-desc">Donor registers once with blood group and city</div></div>
-    <div class="step"><div class="step-num">2</div><div class="step-title">Request</div><div class="step-desc">Patient family submits emergency request with contact number</div></div>
-    <div class="step"><div class="step-num">3</div><div class="step-title">Alert</div><div class="step-desc">System instantly alerts all matching eligible donors by email</div></div>
-    <div class="step"><div class="step-num">4</div><div class="step-title">Connect</div><div class="step-desc">Donor calls patient directly and reports outcome after hospital visit</div></div>
-  </div>
-</div>
+      <h1>
+        Be someone's<br>
+        <span>reason to hope.</span>
+      </h1>
 
-{% if feed %}
-<div class="card">
-  <div class="section-title">🔴 Live Open Requests</div>
-  {% for r in feed %}
-  <div class="feed-card">
-    <div class="feed-bg">{{r.blood_group}}</div>
-    <div class="feed-info">
-      <strong>{{r.patient_name}} — {{r.hospital_name}}, {{r.city}}</strong>
-      <span>{{r.units_needed}} unit(s) &nbsp;|&nbsp; Call: {{r.contact_phone}} &nbsp;|&nbsp; {{r.requested_at[:10]}}</span>
+      <p class="bc-hero-copy">
+        Connect with blood donors when it matters most.
+        Register as a donor, submit a blood request, and help
+        bring people together through the power of giving.
+      </p>
+
+      <div class="bc-actions">
+        <a href="/request-blood" class="bc-button bc-button-primary">
+          🚨 Request Blood
+        </a>
+
+        <a href="/register" class="bc-button bc-button-secondary">
+          🩸 Become a Donor
+        </a>
+      </div>
     </div>
-    <span class="badge badge-{{r.urgency|lower}}">{{r.urgency}}</span>
-  </div>
-  {% endfor %}
+
+    <div class="bc-hero-art" aria-hidden="true">
+      <div class="bc-drop-circle">🩸</div>
+
+      <div class="bc-float bc-float-one">
+        ❤️ Give the gift of life
+        <span>One donation can make a difference</span>
+      </div>
+
+      <div class="bc-float bc-float-two">
+        🤝 People helping people
+        <span>Connecting donors and requests</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIVE STATISTICS -->
+  <section class="bc-section">
+    <div class="bc-section-heading">
+      <div>
+        <h2>BloodConnect at a glance</h2>
+        <p>A snapshot of the activity recorded in our system.</p>
+      </div>
+    </div>
+
+    <div class="bc-stats">
+      <div class="bc-stat">
+        <div class="bc-stat-icon" aria-hidden="true">🩸</div>
+        <div class="bc-stat-number">{{ stats.active_donors }}</div>
+        <div class="bc-stat-label">Active Donors</div>
+      </div>
+
+      <div class="bc-stat">
+        <div class="bc-stat-icon" aria-hidden="true">🚨</div>
+        <div class="bc-stat-number">{{ stats.open_requests }}</div>
+        <div class="bc-stat-label">Open Blood Requests</div>
+      </div>
+
+      <div class="bc-stat">
+        <div class="bc-stat-icon" aria-hidden="true">🤝</div>
+        <div class="bc-stat-number">{{ stats.fulfilled }}</div>
+        <div class="bc-stat-label">Requests Fulfilled</div>
+      </div>
+
+      <div class="bc-stat">
+        <div class="bc-stat-icon" aria-hidden="true">💝</div>
+        <div class="bc-stat-number">{{ stats.total_donations }}</div>
+        <div class="bc-stat-label">Recorded Donations</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="bc-section">
+    <div class="bc-section-heading">
+      <div>
+        <h2>How BloodConnect works</h2>
+        <p>Four simple steps to connect people who need help with potential donors.</p>
+      </div>
+    </div>
+
+    <div class="bc-steps">
+      <article class="bc-step">
+        <div class="bc-step-number">01</div>
+        <h3>Register as a donor</h3>
+        <p>Create a profile with your blood group and location so matching requests can find you.</p>
+      </article>
+
+      <article class="bc-step">
+        <div class="bc-step-number">02</div>
+        <h3>Submit a request</h3>
+        <p>Provide the requested blood group, hospital, city, and contact details.</p>
+      </article>
+
+      <article class="bc-step">
+        <div class="bc-step-number">03</div>
+        <h3>Notify potential donors</h3>
+        <p>The system identifies matching available donors and attempts to send email alerts.</p>
+      </article>
+
+      <article class="bc-step">
+        <div class="bc-step-number">04</div>
+        <h3>Confirm the outcome</h3>
+        <p>Donors can respond to an alert and report the outcome of their hospital visit.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- OPEN REQUEST FEED -->
+  <section class="bc-section">
+    <div class="bc-section-heading">
+      <div>
+        <h2>Open blood requests</h2>
+        <p>Recent requests currently marked as open in the system.</p>
+      </div>
+
+      <a href="/request-blood" class="bc-button bc-button-secondary">
+        + New Request
+      </a>
+    </div>
+
+    {% if feed %}
+      <div class="bc-request-list">
+        {% for r in feed %}
+          <article class="bc-request">
+            <div class="bc-blood-group">
+              {{ r.blood_group }}
+            </div>
+
+            <div class="bc-request-info">
+              <h3>{{ r.hospital_name }} — {{ r.city }}</h3>
+              <p>
+                {{ r.units_needed }} unit(s)
+                &nbsp;·&nbsp;
+                {{ r.requested_at[:10] }}
+              </p>
+            </div>
+
+            <span class="badge badge-{{ r.urgency|lower }}">
+              {{ r.urgency }}
+            </span>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="bc-empty">
+        <div class="bc-empty-icon" aria-hidden="true">💗</div>
+        <h3>No open requests right now</h3>
+        <p>There are no requests marked as open in the system at this time.</p>
+      </div>
+    {% endif %}
+  </section>
+
+  <!-- BOTTOM CALL TO ACTION -->
+  <section class="bc-bottom-cta">
+    <div>
+      <h2>Your next step could help someone.</h2>
+      <p>Join the donor network or create a blood request to get started.</p>
+    </div>
+
+    <a href="/register" class="bc-button bc-button-primary">
+      Join as a Donor →
+    </a>
+  </section>
+
 </div>
-{% endif %}
+
 {% endblock %}
